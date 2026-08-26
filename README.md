@@ -106,7 +106,7 @@ flowchart TD
     | IPINFO_TOKEN | 你的ipinfo.io API Token | 剛剛申請的 |
     | SHEET_NAME | 試算表的名稱 | 剛剛記下的 |
     | SHEET_URL | 試算表URL | 剛剛記下的 |
-    
+
     ![示範](/readme_images/gas.webp)
 5. 部署，並記下部署的網頁應用程式的URL
     ![示範](/readme_images/gas_deploy.webp)
@@ -159,6 +159,10 @@ index.html 需要修改的變數：
 
 4. 後台一樣只有一個HTML檔案，位於 [/admin_panel/index.html](/admin_panel/index.html)，放在任何的靜態網頁伺服器都可以，因為這個專案是Serverless（無伺服器）的架構，沒辦法做密碼登入系統，所以你可以自己搞，例如使用基於URL的存取控制（例如 `www.example.com/admin-panel-password-123456789abcdefg`） 等等，這裡不贅述。
 5. 編輯檔案，修改 index.html 的變數
+
     | 變數名稱 | 值 | 說明 |
+    | --- | --- | --- |
     | APPS_SCRIPT_URL | 請自行替換至後台GAS的URL | |
     | YOUR_CARD_IMAGE_URL_HERE | 每張留言圖卡的背景圖片 | 有程式碼中兩處，記得替換。1:1圖片效果最佳。 |
+
+> 至此，你的後台就架設好了！
