@@ -1,4 +1,4 @@
-# 自製匿名問答系統
+# 自製的匿名問答系統（基於 Cloudflare Worker 和 Google Sheet 這些免費服務，可零成本架設）
 
 ## 專案簡介
 
