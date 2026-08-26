@@ -2,8 +2,8 @@
 
 ## 專案簡介
 
-![16:9 Preview](/readme_images/preview_16:9.webp)
-![9:16 Preview](/readme_images/preview_9:16.webp)
+<img src="/readme_images/preview_16:9.webp" width="600">
+<img src="/readme_images/preview_9:16.webp" width="600">
 
 這是一款完全開源且可自主架設的匿名問答系統，旨在成為Instagram或其他社交平台上，常出現的匿名問答服務的替代方案。
 
