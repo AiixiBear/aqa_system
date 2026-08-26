@@ -44,6 +44,7 @@
 
 > 下方流程圖是使用AI進行摘要，因為我能力不足，非常抱歉！
 
+```mermaid
 flowchart TD
     %% 使用者公開留言流程
     User[使用者] --> Frontend[留言前台  
@@ -93,7 +94,7 @@ admin_panel_gas/main.gs]
     Filter --> Card[顯示留言卡片]
     Card --> Export[使用 html2canvas  
 下載 PNG 圖卡]
-
+```
 
 ### Google Sheets
 1. 去 [Google Sheets](https://docs.google.com/spreadsheets/) 建立一個空白試算表
