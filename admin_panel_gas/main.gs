@@ -9,7 +9,7 @@ const SHEET_NAME = PropertiesService.getScriptProperties().getProperty('SHEET_NA
    因為直接讀取試算表，速度會超級快！
    ========================================== */
 function doGet(e) {
-  const sheet = SpreadsheetApp.openByUrl(SHEET_URL).getSheetByName("SHEET_NAME");
+  const sheet = SpreadsheetApp.openByUrl(SHEET_URL).getSheetByName(SHEET_NAME);
   const data = sheet.getDataRange().getValues();
   
   const rows = data.slice(1).map(r => {

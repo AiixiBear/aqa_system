@@ -40,14 +40,59 @@
 
 ## 發送留言的系統架設教學
 
-### 原理
+### 完整原理
 
-```mermaid
+> 下方流程圖是使用AI進行摘要，因為我能力不足，非常抱歉！
+
 flowchart TD
-    A["前端網頁<br>（發送留言與 Turnstile Token）"] --> B["Cloudflare Worker<br>（擷取 IP／裝置資訊，並驗證 Token 有效性）"]
-    B --> C["GAS<br>（接收處理後的資料）"]
-    C --> D["Google Sheets<br>（寫入資料庫）"]
-```
+    %% 使用者公開留言流程
+    User[使用者] --> Frontend[留言前台  
+frontend/index.html]
+    Frontend --> Input[輸入留言內容  
+讀取 URL tag]
+    Input --> TurnstileWidget[Cloudflare Turnstile  
+取得驗證 Token]
+    TurnstileWidget --> Submit[送出 POST 請求  
+text、tag、turnstile token]
+
+    %% Cloudflare Worker 驗證與轉送流程
+    Submit --> Worker[Cloudflare Worker  
+worker/index.js]
+    Worker --> ValidateInput{檢查請求與內容}
+    ValidateInput -->|不通過| ReturnError[回傳錯誤訊息給前台]
+    ValidateInput -->|通過| GetClientInfo[取得 IP 與 User-Agent]
+    GetClientInfo --> VerifyTurnstile[呼叫 Turnstile Siteverify API]
+    VerifyTurnstile --> TurnstileAPI[Cloudflare Turnstile API]
+    TurnstileAPI --> TurnstileResult{Token 驗證成功？}
+    TurnstileResult -->|否| ReturnError
+    TurnstileResult -->|是| SendToGAS[轉送留言資料至寫入用 GAS]
+
+    %% Google Apps Script 寫入流程
+    SendToGAS --> WriteGAS[Google Apps Script  
+gas/main.gs]
+    WriteGAS --> IPInfo[IPinfo API  
+查詢國家／ASN]
+    IPInfo --> GenerateCode[產生留言專屬代碼  
+AQA-0001]
+    GenerateCode --> GoogleSheet[(Google Sheets  
+留言資料庫)]
+    GoogleSheet --> WriteResult[回傳成功狀態與專屬代碼]
+    WriteResult --> WorkerSuccess[Worker 回傳 JSON]
+    WorkerSuccess --> ShowCode[前台顯示留言專屬代碼]
+
+    %% 管理者後台閱讀與產圖流程
+    Admin[管理者] --> AdminPanel[留言管理後台  
+admin_panel/index.html]
+    AdminPanel --> AdminGAS[後台 Google Apps Script  
+admin_panel_gas/main.gs]
+    AdminGAS --> GoogleSheet
+    GoogleSheet --> AdminGAS
+    AdminGAS --> MessageJSON[回傳留言 JSON 資料]
+    MessageJSON --> Filter[後台篩選留言  
+關鍵字、IP、tag、代碼]
+    Filter --> Card[顯示留言卡片]
+    Card --> Export[使用 html2canvas  
+下載 PNG 圖卡]
 
 
 ### Google Sheets
