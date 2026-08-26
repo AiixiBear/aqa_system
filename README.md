@@ -106,6 +106,7 @@ flowchart TD
     | IPINFO_TOKEN | 你的ipinfo.io API Token | 剛剛申請的 |
     | SHEET_NAME | 試算表的名稱 | 剛剛記下的 |
     | SHEET_URL | 試算表URL | 剛剛記下的 |
+    
     ![示範](/readme_images/gas.webp)
 5. 部署，並記下部署的網頁應用程式的URL
     ![示範](/readme_images/gas_deploy.webp)
