@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="zh-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>匿名留言卡片生成器</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Huninn&family=Zen+Maru+Gothic:wght@500&display=swap');
+    body {
+        background: linear-gradient(135deg,#0f172a,#1e293b);
+        color: rgb(0, 0, 0);
+        font-family: "Huninn", "sans-serif"!important;
+    }
+   .title { color: white; }
+   .card {
+        border-radius: 24px;
+        padding: 24px;
+        margin-bottom: 10px;
+        width: 300px;
+        height: 300px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        box-sizing: border-box;
+        word-break: break-all;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+        background-color: rgb(45, 41, 41);
+    }
+   .card::before {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-image:
+            linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)),
+            url('YOUR_CARD_IMAGE_URL_HERE');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        z-index: 0;
+        transition: all 0.3s ease;
+    }
+   .card:hover {
+        transform: translateY(-6px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 12px 40px 0 rgba(59, 130, 246, 0.25);
+    }
+   .card:hover::before {
+        background-image:
+            linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
+            url('YOUR_CARD_IMAGE_URL_HERE');
+    }
+   .card > * { position: relative; z-index: 1; }
+
+    /* 設定卡片外層容器 */
+   .card-wrapper {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0;
+    }
+    
+    /* 隱藏資訊面板，預設顯示於卡片下方 */
+   .info-panel {
+        display: none;
+        position: absolute;
+        top: calc(100% + 12px);
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 50;
+        flex-direction: column;
+        gap: 8px;
+        width: 300px;
+        min-width: 200px;
+        max-width: 340px;
+        height: auto;
+        box-sizing: border-box;
+        padding: 16px;
+        border-radius: 20px;
+        background: rgba(15, 23, 42, 0.65);
+        border: 1px solid rgba(239, 68, 68, 0.35);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        color: #ffffff;
+        font-size: 12px;
+        line-height: 1.6;
+        flex-shrink: 0;
+    }
+    
+    /* 展開隱藏內容時的樣式調整 */
+   .show-hidden .card-wrapper {
+        gap: 12px;
+    }
+   .show-hidden .info-panel {
+        position: relative;
+        top: auto;
+        bottom: auto;
+        left: auto;
+        transform: none;
+    }
+    
+    /* 觸發顯示面板的條件 */
+   .card-wrapper:hover .info-panel,
+   .show-hidden .info-panel {
+        display: flex;
+    }
+
+   .msg-text { font-size: 25px!important; }
+   
+   .show-hidden .card .msg-text {
+        font-size: 25px!important;
+        line-height: 1.4!important;
+    }
+    
+   .filter-input { min-width: 160px; }
+   .download-btn { transition: background-color 0.2s, opacity 0.2s; }
+   .download-btn:hover { background-color: #3b82f6; }
+   .download-btn:active { background-color: #2563eb; }
+   .msg-text {
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8), -1px -1px 3px rgba(0, 0, 0, 0.8);
+    }
+   .shadow-sm-text { text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8); }
+</style>
+</head>
+<body class="min-h-screen flex flex-col items-center py-8">
+
+<h1 class="text-3xl font-bold mb-6 title">匿名留言牆</h1>
+<div id="loading" class="text-white text-xl mb-4">讀取中...</div>
+
+<div id="filters" class="w-full max-w-5xl mb-4 flex flex-wrap gap-2 items-center justify-center">
+    <input id="kw" class="filter-input px-3 py-2 rounded shadow-sm" placeholder="關鍵字篩選 (留言內容)" />
+    <input id="ip" class="filter-input px-3 py-2 rounded shadow-sm" placeholder="IP 篩選 (部分匹配)" />
+    <input id="tag" class="filter-input px-3 py-2 rounded shadow-sm" placeholder="辨識碼 篩選 (精確或部分匹配)" />
+    <input id="code" class="filter-input px-3 py-2 rounded shadow-sm" placeholder="留言專屬代碼 篩選 （精確或部分）" />
+    <button id="apply" class="px-4 py-2 bg-blue-500 text-white rounded">篩選</button>
+    <button id="clear" class="px-4 py-2 bg-gray-300 text-black rounded">清除</button>
+    <label class="flex items-center gap-2 text-white px-2">
+        <input type="checkbox" id="showHidden" class="h-4 w-4" />
+        <span class="text-sm">顯示隱藏內容</span>
+    </label>
+</div>
+
+<div id="list" class="w-full max-w-5xl flex flex-wrap justify-center gap-4"></div>
+
+<script>
+const APPS_SCRIPT_URL = "YOUR_DATABASE_APPS_SCRIPT_URL";
+let messages = [];
+
+async function loadMessages() {
+    document.getElementById('loading').style.display = 'block';
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    try {
+        const res = await fetch(APPS_SCRIPT_URL, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        const data = await res.json();
+        messages = data.slice().reverse();
+        renderMessages();
+    } catch (e) {
+        clearTimeout(timeoutId);
+        if (e.name === 'AbortError') {
+            document.getElementById('list').innerHTML = '<div class="text-white">讀取逾時，請重新整理頁面再試。</div>';
+        } else {
+            document.getElementById('list').innerHTML = '<div class="text-white">讀取失敗，請稍後再試。</div>';
+        }
+        console.error(e);
+    } finally {
+        document.getElementById('loading').style.display = 'none';
+    }
+}
+
+function renderMessages() {
+    const kw = document.getElementById('kw').value.trim().toLowerCase();
+    const ip = document.getElementById('ip').value.trim();
+    const tag = document.getElementById('tag').value.trim().toLowerCase();
+    const list = document.getElementById('list');
+    const code = document.getElementById('code').value.trim();
+
+    list.innerHTML = '';
+    
+    const filtered = messages.filter(item => {
+        if (kw) {
+            const hay = (item.text + ' ' + (item.time || '')).toLowerCase();
+            if (!kw.split(/\s+/).every(k => hay.includes(k))) return false;
+        }
+        if (ip) { if (!item.ip || item.ip.indexOf(ip) === -1) return false; }
+        if (tag) { if (!item.tag || item.tag.toLowerCase().indexOf(tag) === -1) return false; }
+        if (code) {
+            if (!item.code || item.code.indexOf(code) === -1) return false;
+        }
+        return true;
+    });
+    
+    if (filtered.length === 0) {
+        list.innerHTML = '<div class="text-white">沒有符合條件的留言。</div>';
+        return;
+    }
+    
+    filtered.forEach(item => {
+        const isLongText = item.text.length > 12;
+        const wrapper = document.createElement('div');
+        wrapper.className = "card-wrapper";
+        wrapper.innerHTML = `
+            <div class="card shadow-lg">
+                <div class="flex-1 flex items-center justify-center w-full">
+                    <div class="text-xl text-white font-bold text-center px-2 tracking-wide leading-relaxed msg-text ${isLongText? 'long-text' : ''}">
+                        ${escapeHtml(item.text)}
+                    </div>
+                </div>
+                <div class="w-full text-center mt-3 flex flex-col gap-1.5">
+                    <div class="text-sm text-white font-medium tracking-wider shadow-sm-text">${escapeHtml(item.time || '')}</div>
+                    <div class="text-xs text-white uppercase tracking-widest scale-95 shadow-sm-text">愛希匿名問答#${escapeHtml(item.code || '這則留言代碼未知')}</div>
+                </div>
+                <button class="download-btn mt-3 w-full py-1.5 bg-white/10 hover:bg-blue-500 text-white/80 hover:text-white border border-white/20 hover:border-transparent rounded-xl text-xs font-medium tracking-wide transition-all duration-200 data-html2canvas-ignore">
+                    下載圖片卡片
+                </button>
+            </div>
+            <div class="info-panel">
+                <div class="info-row"><span class="info-label">來源:</span>${escapeHtml(item.country || '未知')} (${escapeHtml(item.as_name || '未知')})</div>
+                <div class="info-row">
+                    <span class="info-label">IP:</span>${escapeHtml(item.ip || '未知')}
+                    ${item.ip? `<a href="https://ipinfo.io/${encodeURIComponent(item.ip)}" target="_blank" class="text-blue-400 underline ml-1 hover:text-blue-300 data-html2canvas-ignore">查看</a>` : ''}
+                </div>
+                <div class="info-row"><span class="info-label">🏷 辨識碼:</span>${escapeHtml(item.tag || '無')}</div>
+                <div class="info-row"><span class="info-label">User-Agent:</span>${escapeHtml(item.userAgent || '未知')}</div>
+            </div>
+        `;
+        list.appendChild(wrapper);
+        const downloadBtn = wrapper.querySelector('.download-btn');
+        downloadBtn.addEventListener('click', () => exportToImage(wrapper));
+    });
+}
+
+function escapeHtml(s) {
+    if (!s && s!== 0) return '';
+    return String(s)
+       .replace(/&/g, '&amp;')
+       .replace(/</g, '&lt;')
+       .replace(/>/g, '&gt;')
+       .replace(/"/g, '&quot;')
+       .replace(/'/g, '&#39;');
+}
+
+document.getElementById('apply').addEventListener('click', () => renderMessages());
+document.getElementById('clear').addEventListener('click', () => {
+    document.getElementById('kw').value = '';
+    document.getElementById('ip').value = '';
+    document.getElementById('tag').value = '';
+    document.getElementById('code').value = '';
+    renderMessages();
+});
+['kw', 'ip', 'tag', 'code'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') renderMessages();
+    });
+});
+
+const showHiddenCheckbox = document.getElementById('showHidden');
+if (showHiddenCheckbox) {
+    showHiddenCheckbox.addEventListener('change', (e) => {
+        document.body.classList.toggle('show-hidden', e.target.checked);
+    });
+}
+
+function exportToImage(wrapperElement) {
+    const cardElement = wrapperElement.querySelector('.card');
+    const downloadBtn = cardElement.querySelector('.download-btn');
+    const showHiddenCheckbox = document.getElementById('showHidden');
+    const isShowingHidden = showHiddenCheckbox && showHiddenCheckbox.checked;
+    
+    if (downloadBtn) downloadBtn.style.visibility = 'hidden';
+    
+    const allWrappers = Array.from(document.querySelectorAll('.card-wrapper'));
+    const wrapperIndex = allWrappers.indexOf(wrapperElement);
+    
+    html2canvas(wrapperElement, {
+        scale: 3,
+        useCORS: true,
+        logging: false,
+        backgroundColor: null,
+        onclone: (clonedDocument) => {
+            const clonedWrappers = clonedDocument.querySelectorAll('.card-wrapper');
+            const clonedWrapper = clonedWrappers[wrapperIndex];
+            if (!clonedWrapper) return;
+            
+            const clonedCard = clonedWrapper.querySelector('.card');
+            const clonedPanel = clonedWrapper.querySelector('.info-panel');
+            
+            if (clonedCard) {
+                const clonedBtn = clonedCard.querySelector('.download-btn');
+                if (clonedBtn) clonedBtn.style.visibility = 'hidden';
+                clonedCard.style.transform = 'none';
+                clonedCard.style.boxShadow = 'none';
+                
+                const msgText = clonedCard.querySelector('.msg-text');
+                if (msgText) {
+                    const isLongText = msgText.classList.contains('long-text');
+                    if (isShowingHidden || isLongText) {
+                        msgText.style.setProperty('font-size', '25px', 'important');
+                        msgText.style.setProperty('line-height', '1.3', 'important');
+                    } else {
+                        msgText.style.setProperty('font-size', '25px', 'important');
+                        msgText.style.setProperty('line-height', '1.4', 'important');
+                    }
+                }
+            }
+            
+            if (clonedPanel) {
+                if (isShowingHidden) {
+                    clonedPanel.style.setProperty('display', 'flex', 'important');
+                } else {
+                    clonedPanel.remove();
+                }
+            }
+        }
+    }).then(canvas => {
+        if (downloadBtn) downloadBtn.style.visibility = '';
+        const link = document.createElement('a');
+        link.download = '匿名留言卡片.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    }).catch(err => {
+        if (downloadBtn) downloadBtn.style.visibility = '';
+        console.error('下載失敗：', err);
+    });
+}
+
+loadMessages();
+</script>
+</body>
+</html>

@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="zh-TW">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>匿名問答</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Huninn&family=Zen+Maru+Gothic:wght@500&display=swap');
+    :root{
+      --bg: linear-gradient(135deg,#0f172a 0%, #081124 40%, #0b1020 100%);
+      --card:#0b1220;
+      --accent:#ffd166;
+      --muted:#9aa6b2;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:var(--bg);font-family: "Huninn", "Zen Maru Gothic", sans-serif, system-ui, sans-serif;color:white;display:flex;align-items:center;justify-content:center;padding:32px}
+    .wrap{width:100%;max-width:820px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.04);border-radius:16px;padding:36px;backdrop-filter: blur(6px);box-shadow:0 8px 30px rgba(2,6,23,0.6)}
+
+    header{display:flex;align-items:center;gap:12px}
+    .logo{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow: hidden;border: 3px solid rgba(255, 255, 255, 0.3);flex-shrink: 0;}
+    h1{margin:0;font-size:28px}
+    p.lead{margin:6px 0 12px;color:var(--muted);font-size:18px}
+
+    textarea{width:100%;min-height:180px;background:transparent;border:1px dashed rgba(255,255,255,0.06);padding:12px;border-radius:8px;color:white;font-size:18px;resize:vertical;font-family: "Huninn", sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue';border: 8px solid rgba(255, 255, 255, 0.3);}
+    
+    /* 字數統計樣式 */
+    .char-count{font-size:18px;color:var(--muted);text-align:right;margin-top:4px}
+    .char-count.exceeded{color:#ff5e5e;font-weight:700}
+
+    .controls{display:flex;gap:12px;margin-top:12px;align-items:center}
+    .btn{background:linear-gradient(90deg,#00f9d8,#00ffa6);border:none;padding:10px 16px;border-radius:12px;font-weight:700;cursor:pointer;box-shadow:0 6px 18px rgba(255,123,123,0.12);transition:transform .12s ease, opacity .12s ease;font-size: 18px;}
+    .btn:active{transform:translateY(2px)}
+    /* 按鈕停用時的 CSS 樣式 */
+    .btn:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+    
+    .secondary{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:10px 12px;border-radius:10px;color:var(--muted);cursor:pointer}
+
+    .toast {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(5, 238, 164, 0.95);
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      font-weight: 700;
+      z-index: 9999;
+      font-size: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      text-align: center;
+      min-width: 30%; /* 設定最小寬度 */
+      max-width: 50%;   /* 設定最大寬度，避免超過螢幕 80% */
+      user-select: text !important;
+    }
+    
+    .fun-area{display:flex;gap:10px;align-items:center;margin-top:14px}
+    .tag{font-size:18px;padding:6px 8px;background:rgba(255,255,255,0.03);border-radius:999px;color:var(--muted);}
+
+    .list{margin-top:18px;display:grid;gap:10px}
+    .item{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.02);font-size:14px}
+    .meta{font-size:12px;color:var(--muted);margin-bottom:6px}
+
+    @keyframes wobble{0%{transform:translateY(0)}50%{transform:translateY(-8px)}100%{transform:translateY(0)}}
+    .wobble{animation:wobble 2s ease-in-out infinite}
+
+    .foot{margin-top:14px;color:var(--muted);font-size:12px}
+
+    @media (max-width:520px){.card{padding:14px}.toast{min-width: 90%;max-width: 97%;}}
+
+    .privacy-box {
+      margin-top: 16px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: 10px;
+      font-size: 16px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .privacy-title {
+      font-size: 23px;
+      font-weight: 700;
+      color: #ff0000;
+      margin-bottom: 4px;
+    }
+
+    .privacy-list {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .privacy-list li {
+      margin-bottom: 2px;
+    }
+    b {
+      color: #00e1ff;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <header>
+        <div class="logo"><img src="YOUR_ICON_URL_HERE" height="64" width="64"></div>
+        <div>
+          <h1>匿名問答</h1>
+          <p class="lead">在下方寫下你的問題之類的？？然後按下送出即可！！</p>
+        </div>
+      </header>
+
+      <div style="margin-top:12px">
+        <textarea id="text" placeholder="請在此輸入你想說的話！（最多100字）"></textarea>
+        <div id="char-count" class="char-count">0 / 100</div>
+        <div class="cf-turnstile" data-sitekey="YOUR_TURNSTILE_SITE_KEY_HERE" style="margin-top:12px"></div>
+
+        <div class="controls">
+          <button id="send" class="btn" disabled>🚀 按這裡送出！！！</button>
+          <button id="clear" class="secondary">清空</button>
+        </div>
+
+        <div class="fun-area">
+          <div style="margin-left:8px" class="tag">防刷冷卻：<span id="cooldown">0s</span></div>
+        </div>
+        <div class="fun-area">
+          <div class="tag" style="display:flex;align-items:center;gap:6px">
+            <b>留言專屬代碼</b>：<code id="user-code" style="color:var(--accent);font-weight:700">尚未生成</code>
+            <button id="copy-code-btn" class="secondary" style="padding:2px 8px;font-size:17px;cursor:pointer">複製</button>
+          </div>
+        </div>
+        <div class="foot">
+          <div>2025/10/05 Aiixi Bear 製作 | <a href="https://github.com/AiixiBear/aqa_system/">查看 GitHub 原始碼</a></div>
+        </div>
+        <!-- 隱私權聲明 -->
+        <div class="privacy-box">
+          <div class="privacy-title">事先聲明！</div>
+          <ul class="privacy-list">
+            <li><b>留言專屬代碼</b>：會在送出留言後生成，此代碼可以保存起來，因為它用於辨識你自己的留言。</li>
+            <li>你的留言會被公開展示在我的 Instagram 限動，所以<b>請勿在留言中留下個人的敏感資料。</b></li>
+            <li>在你送出留言時，本系統會一併紀錄你的裝置資訊（例如：IP地址、瀏覽器資訊），這些資訊僅供統計使用，<b>我絕對不會、也無法透過這些資訊猜測出你是誰，也不會將這些資訊分享給第三方或公開展示，請安心送出。</b></li>
+            <li><b>請勿發布任何違法、色情、暴力、政治、未經查證的訊息或攻擊性言論。</b></li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+    const WORKER_URL = 'YOUR_WORKER_URL_HERE';
+
+    const elText = document.getElementById('text');
+    const btn = document.getElementById('send');
+    const clear = document.getElementById('clear');
+    const cooldownEl = document.getElementById('cooldown');
+    const charCountEl = document.getElementById('char-count');
+    const userCodeEl = document.getElementById('user-code');
+    const copyCodeBtn = document.getElementById('copy-code-btn');
+
+    let cooldown = 0; // 秒
+    let cooldownTimer = null;
+    let isSubmitting = false;
+
+    // 檢查並更新送出按鈕狀態
+    function updateButtonState() {
+      const txt = elText.value.trim();
+      const len = elText.value.length;
+
+      // 當內容空白、字數大於 100 字、處於冷卻中，或是正在傳送資料時，禁用按鈕
+      if (!txt || len > 100 || cooldown > 0 || isSubmitting) {
+        btn.disabled = true;
+      } else {
+        btn.disabled = false;
+      }
+    }
+
+    // 監聽輸入框事件，更新字數統計與按鈕狀態
+    elText.addEventListener('input', () => {
+      const len = elText.value.length;
+      charCountEl.textContent = `${len} / 100`;
+
+      if (len > 100) {
+        charCountEl.classList.add('exceeded');
+      } else {
+        charCountEl.classList.remove('exceeded');
+      }
+
+      updateButtonState();
+    });
+
+    // 簡單防刷（前端）：每次送出後 8 秒內不能再送
+    function startCooldown(s) { 
+      cooldown = s; 
+      cooldownEl.textContent = cooldown + 's';
+      updateButtonState();
+
+      cooldownTimer = setInterval(() => {
+        cooldown -= 1; 
+        cooldownEl.textContent = cooldown + 's';
+        if (cooldown <= 0) { 
+          clearInterval(cooldownTimer); 
+          cooldownEl.textContent = '0s'; 
+          updateButtonState();
+        }
+      }, 1000);
+    }
+
+    function showToast(msg) {
+      const t = document.createElement('div');
+      t.className = 'toast'; 
+      t.textContent = msg; 
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 3500);
+    }
+
+    if (copyCodeBtn) {
+      copyCodeBtn.addEventListener('click', () => {
+        const codeText = userCodeEl ? userCodeEl.textContent : '';
+        if (!codeText || codeText === '尚未生成') {
+          showToast('請先送出留言取得專屬代碼喔！');
+          return;
+        }
+        navigator.clipboard.writeText(codeText).then(() => {
+          showToast('留言專屬代碼已複製！這組代碼可以用於辨識你自己的留言～');
+        }).catch(() => {
+          showToast('複製失敗，請手動複製：' + codeText);
+        });
+      });
+    }
+
+    btn.addEventListener('click', async () => {
+      const txt = elText.value.trim();
+      if (!txt) { showToast('欸？你要送什麼啦！'); return; }
+      if (elText.value.length > 100) { showToast('錯誤：太長惹，請少於100字'); return; }
+      if (cooldown > 0) { showToast('錯誤：冷卻中，等等啦～'); return; }
+
+      // 直接取得 Turnstile 驗證 Token
+      const turnstileResponse = typeof turnstile !== 'undefined' ? turnstile.getResponse() : '';
+      if (!turnstileResponse) { showToast('錯誤：請先通過"我不是機器人"驗證！'); return; }
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const tag = urlParams.get('tag') || '';
+
+      isSubmitting = true;
+      updateButtonState();
+      showToast('留言送出中請保持在這個頁面等我一下下喔！！');
+
+      try {
+        const res = await fetch(WORKER_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: txt, tag, turnstile: turnstileResponse })
+        });
+        const data = await res.json();
+        if (data.status === 'ok') {
+          // 1. 取得 Worker/Apps Script 配發的流水號代碼
+          const code = data.userCode || '未知代碼';
+
+          // 2. 更新畫面上顯示的代碼
+          if (userCodeEl) {
+            userCodeEl.textContent = code;
+          }
+
+          // 3. 跳出 Toast 提示，並提醒使用者可以複製代碼
+          showToast(`送出成功！你留言的專屬代碼是：${code}`);
+
+          // 4. 重置輸入框與狀態
+          elText.value = '';
+          charCountEl.textContent = '0 / 100';
+          charCountEl.classList.remove('exceeded');
+          if (typeof turnstile !== 'undefined') turnstile.reset();
+          isSubmitting = false;
+          startCooldown(8);
+        } else {
+          showToast('失敗：' + data.message);
+          if (typeof turnstile !== 'undefined') turnstile.reset();
+          isSubmitting = false;
+          updateButtonState();
+        }
+      } catch (e) {
+        showToast('錯誤：送出失敗，未知原因');
+        if (typeof turnstile !== 'undefined') turnstile.reset();
+        isSubmitting = false;
+        updateButtonState();
+      }
+    });
+
+    clear.addEventListener('click', () => { 
+      elText.value = ''; 
+      charCountEl.textContent = '0 / 100';
+      charCountEl.classList.remove('exceeded');
+      updateButtonState();
+      showToast('已清空'); 
+    });
+
+    // 初始化按鈕狀態
+    updateButtonState();
+  </script>
+</body>
+</html>
