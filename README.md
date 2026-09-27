@@ -1,5 +1,9 @@
 # 自製的匿名問答系統（基於 Cloudflare Worker 和 Google Sheet 這些免費服務，可零成本架設）
 
+## 完整說明與教學文章
+
+[https://www.aiixi.cc/posts/aqa-system/](https://www.aiixi.cc/posts/aqa-system/)
+
 ## 專案簡介
 
 <img src="/readme_images/preview_169.webp" width="600">
