@@ -14,7 +14,7 @@ export default {
 
     // 2. 只允許 POST 請求
     if (request.method !== 'POST') {
-      return json({ status: 'error', message: '拉屎嗎？請使用 POST 請求' }, 405);
+      return json({ status: 'error', message: '請使用 POST 請求' }, 405);
     }
 
     // 3. 解析請求內容
@@ -25,8 +25,8 @@ export default {
       return json({ status: 'error', message: '無效的 JSON 格式' }, 400);
     }
 
-    const { text, tag, recaptcha, turnstile } = params;
-    const token = recaptcha || turnstile;
+    const { text, tag, turnstile } = params;
+    const token = turnstile;
 
     // 4. 驗證輸入欄位
     if (!text || text.trim().length === 0) {
@@ -53,39 +53,43 @@ export default {
       method: 'POST',
       body: verifyFormData
     });
-    
+
     const verifyJson = await verifyRes.json();
 
     if (!verifyJson.success) {
-      return json({ 
-        status: 'error', 
-        message: `驗證碼驗證失敗: ${verifyJson['error-codes']?.join(', ') || '未知錯誤'}，請重試` 
+      return json({
+        status: 'error',
+        message: `驗證碼驗證失敗: ${verifyJson['error-codes']?.join(', ') || '未知錯誤'}，請重試`
       }, 400);
     }
 
-    // 7. 將資料發送至 Google Sheet 並取得配發的流水號代碼
-    const now = new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' });
-    const sheetParams = new URLSearchParams({ 
-      time: now, 
-      text: text.trim(), 
-      ip, 
-      tag: tag ?? '',
-      userAgent 
-    });
-
+    // 7. 以 POST 轉送至寫入用 GAS（附帶寫入金鑰）
+    const now = new Date().toISOString();
     let assignedCode = '';
 
     try {
-      const sheetRes = await fetch(`${env.APPS_SCRIPT_URL}?${sheetParams}`, {
-        method: 'GET',
-        redirect: 'follow'
+      const sheetRes = await fetch(env.APPS_SCRIPT_URL, {
+        method: 'POST',
+        redirect: 'follow',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Write-Key': env.APPS_SCRIPT_WRITE_KEY ?? ''
+        },
+        body: JSON.stringify({
+          writeKey: env.APPS_SCRIPT_WRITE_KEY ?? '',
+          time: now,
+          text: text.trim(),
+          ip,
+          tag: tag ?? '',
+          userAgent
+        })
       });
 
       if (!sheetRes.ok) {
         return json({ status: 'error', message: '寫入 Google Sheet 失敗' }, 500);
       }
 
-      // 解析 Apps Script 回傳的 JSON (含有 userCode)
+      // 解析 Apps Script 回傳的 JSON（含有 userCode）
       const sheetData = await sheetRes.json();
       if (sheetData.status === 'ok') {
         assignedCode = sheetData.userCode;
@@ -97,7 +101,7 @@ export default {
       return json({ status: 'error', message: '無法連接寫入服務' }, 500);
     }
 
-    // 8. 成功時，將 100% 唯一的流水號回傳給前端
+    // 8. 成功時，將唯一流水號回傳給前端
     return json({ status: 'ok', userCode: assignedCode }, 200);
   }
 };

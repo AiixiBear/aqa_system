@@ -150,6 +150,7 @@
 
 <script>
 const APPS_SCRIPT_URL = "YOUR_DATABASE_APPS_SCRIPT_URL";
+const READ_KEY = "YOUR_READ_KEY_HERE";
 let messages = [];
 
 async function loadMessages() {
@@ -157,9 +158,19 @@ async function loadMessages() {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000);
     try {
-        const res = await fetch(APPS_SCRIPT_URL, { signal: controller.signal });
+        const sep = APPS_SCRIPT_URL.includes("?") ? "&" : "?";
+        const url = APPS_SCRIPT_URL + sep + "readKey=" + encodeURIComponent(READ_KEY);
+        const res = await fetch(url, {
+            signal: controller.signal,
+            headers: { "X-Read-Key": READ_KEY }
+        });
         clearTimeout(timeoutId);
         const data = await res.json();
+        if (!Array.isArray(data)) {
+            document.getElementById('list').innerHTML =
+                '<div class="text-white">讀取失敗：' + escapeHtml(data.message || '未知錯誤') + '</div>';
+            return;
+        }
         messages = data.slice().reverse();
         renderMessages();
     } catch (e) {

@@ -113,8 +113,7 @@ flowchart TD
     | IPINFO_TOKEN | 你的ipinfo.io API Token | 剛剛申請的 |
     | SHEET_NAME | 試算表的名稱 | 剛剛記下的 |
     | SHEET_URL | 試算表URL | 剛剛記下的 |
-
-    ![示範](/readme_images/gas.webp)
+    | WRITE_KEY | 自訂的隨機密鑰 | 一串夠長的亂數字串，Worker 與本專案共用，避免有人繞過 Worker 直灌資料。請自行生成後記好，稍後要填入 Worker 環境變數。 |
 5. 部署，並記下部署的網頁應用程式的URL
     ![示範](/readme_images/gas_deploy.webp)
 
@@ -135,6 +134,7 @@ flowchart TD
     | --- | --- |
     | TURNSTILE_SECRET_KEY | 你的Turnstile Secret Key |
     | APPS_SCRIPT_URL | 你的 Apps Script URL |
+    | APPS_SCRIPT_WRITE_KEY | 剛剛在寫入用 GAS 設定的 WRITE_KEY，必須完全一致 |
 10. 部署
 
 ### 前端網頁
@@ -159,17 +159,19 @@ index.html 需要修改的變數：
 
     | 屬性 | 值 | 說明 |
     | --- | --- | --- |
-    | IPINFO_TOKEN | 你的ipinfo.io API Token | 這是以防試算表的IP地址資料（IP所在地）不小心被刪除，可以直接執行GAS程式碼中的`fetchIpDetails`function來復原IP資料。如果你不需要可以不填，正常情況下完全不會影響後台運作。 |
+    | IPINFO_TOKEN | 你的ipinfo.io API Token | 這是以防試算表的IP地址資料（IP所在地）不小心被刪除，可以直接執行GAS程式碼中的`repairOldData`function來復原IP資料。如果你不需要可以不填，正常情況下完全不會影響後台運作。 |
     | SHEET_NAME | 試算表的名稱 | 留言資料庫的那個試算表的名稱 |
     | SHEET_URL | 試算表URL | 剛留言資料庫的那個試算表的URL |
     | TIMEZONE | 你的留言圖卡顯示的時間的時區 | 若不指定，預設值為：`Asia/Taipei`，即台北時間 |
+    | READ_KEY | 自訂的隨機密鑰 | 後台讀取留言時必須帶上這把金鑰，避免有人拿到後台GAS網址就直接 dump 全部留言與 IP。請生成一串夠長的亂數，稍後填入後台 index.html。 |
 
-4. 後台一樣只有一個HTML檔案，位於 [/admin_panel/index.html](/admin_panel/index.html)，放在任何的靜態網頁伺服器都可以，因為這個專案是Serverless（無伺服器）的架構，沒辦法做密碼登入系統，所以你可以自己搞，例如使用基於URL的存取控制（例如 `www.example.com/admin-panel-password-123456789abcdefg`） 等等，這裡不贅述。
+4. 後台一樣只有一個HTML檔案，位於 [/admin_panel/index.html](/admin_panel/index.html)，放在任何的靜態網頁伺服器都可以。目前後台已內建 READ_KEY 驗證（後台GAS 驗證，不是帳號密碼登入）。若你想再加一層保護，可以自行使用基於 URL 的存取控制（例如 `www.example.com/admin-panel-password-123456789abcdefg`）或靜態網頁託管商提供的存取限制。
 5. 編輯檔案，修改 index.html 的變數
 
     | 變數名稱 | 值 | 說明 |
     | --- | --- | --- |
     | APPS_SCRIPT_URL | 請自行替換至後台GAS的URL | |
+    | YOUR_READ_KEY_HERE | 剛剛在後台GAS設定的 READ_KEY | 必須完全一致，否則後台會顯示「驗證失敗」 |
     | YOUR_CARD_IMAGE_URL_HERE | 每張留言圖卡的背景圖片 | 有程式碼中兩處，記得替換。1:1圖片效果最佳。 |
 
 > 至此，你的後台就架設好了！
