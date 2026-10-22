@@ -1,181 +1,191 @@
-# 自製的匿名問答系統（基於 Cloudflare Worker 和 Google Sheet 這些免費服務，可零成本架設）
+# 匿名問答系統 (AQA System) 📬
 
-## 完整說明與教學文章
-
-[https://www.aiixi.cc/posts/aqa-system/](https://www.aiixi.cc/posts/aqa-system/)
-
-## 專案簡介
-
-<img src="/readme_images/preview_169.webp" width="600">
-<img src="/readme_images/preview_916.webp" width="600">
-
-這是一款完全開源且可自主架設的匿名問答系統，旨在成為Instagram或其他社交平台上，常出現的匿名問答服務的替代方案。
-
-讓你擺脫第三方平台對資料的掌控與隱私疑慮，利用 Cloudflare Worker 與 Google Sheets 打造無伺服器架構——不僅資料 100% 由自己掌控，還整合了 Cloudflare Turnstile 防刷驗證與 IP/裝置紀錄，提供更安全、免費且高度自主的匿名留言體驗。
-
-## 特色與功能
-
-- 完全無須架設自己的伺服器
-- Cloudflare Turnstile 驗證防機器人
-- 收集 IP、User-Agent並透過 ipinfo.io API 解析IP所在地
-- 帶有留言查看面板（後台），可以直接查看留言並生成留言圖片，貼上 Instagram 限時動態（舉例）
-- 留言資料自己掌控
-- 每一則留言會產生一個辨識碼，方便粉絲辨識自己的留言
-- 可以在前端網頁的URL後面加上`?tag=`標籤參數，方便辨識留言的來源
-- 本專案使用 [MIT License](LICENSE)，你完全可以自己修改程式碼
-
-## 如何讓別人透過這個系統發送留言？
-
-和一般的匿名問答系統一樣，直接將匿名問答系統網頁的網址傳送給粉絲、朋友即可。
-
-你也可以在網址後面加上`?tag=吧拉吧拉`參數，這個Tag的值會一併記錄到使用者發送的留言中，並且只有資料庫持有者（你）會知道，可以用來分流、辨識留言來源。
-
-系統會配發給發送留言者一個獨一無二的流水號（例如：`AQA-9487`），這組流水號也會記錄到使用者發送的留言中，並且會顯示在留言面板（後台）網頁中生成的留言卡片顯示，這樣一來就可以讓發送留言者在你的Instagram限動上（舉例而已）辨識自己發送的留言。
+> 一套零成本、可自架的開源匿名問答系統！採用 Serverless（無伺服器）架構，基於 Cloudflare Workers + Google Sheets + Google Apps Script 打造。完全免費、資料 100% 自主掌控！
 
 
-## 你（留言資料庫持有者）如何查看留言查看面板（後台）
+相信各位在 Instagram 或其他社群上，常常會看到那種「匿名問答箱」（例如 NGL.link 或 Marshmallow-qa 等等） ：丟一條連結給粉絲，大家匿名發送問題或想說的話，你再挑幾則貼到限時動態上回答。
 
-我也有設計一個**留言查看面板（也可以稱後台）**，它會透過Google Apps Script讀取Google Sheet，然後網頁去讀取Apps Script，渲染成圖卡，可以方便查看留言，甚至一鍵生成留言圖卡，然後貼到Instagram上傳（舉例）。
+用起來很方便，沒錯，我自己也用過。但資料都在第三方手上，他們怎麼存、怎麼用、會不會外洩，你完全無法掌控。
 
-![後台](/readme_images/panel.webp)
-![可以顯示留言的來源IP/裝置資料](/readme_images/panel_show_info.webp)
+於是我就想：這種東西為什麼不能自己做？
 
-詳情請看[留言查看面板(簡稱後台)架設教學](#留言查看面板簡稱後台架設教學)
+而且我要的是——
 
-## 開始架設前的準備
+- 完全免費（不要為了解鎖什麼特殊留言功能而付月費）
+- 不用自己架伺服器（我不是伺服器管理員的，雖然管理員聽起來很酷）
+- 資料 100% 自己掌控
+- 能一鍵把留言變成好看的圖卡，直接貼 IG 限動
+(且包含市面上常見的匿名問答系統有的功能)
 
-- Google 帳號：建立 Google Sheets 與部署 Google Apps Script。免費。
-- Cloudflare 帳號：部署 Worker 與建立 Turnstile Widget。免費。
-- IPinfo Lite API Token：用於查詢 IP 的國家／地區與 ASN。免費版僅可查詢來源IP國家/地區、ASN
-- 靜態網頁空間：可使用 GitHub Pages、Cloudflare Pages 或任何可託管 HTML 的免費穩定服務。免費。
+這就是這個專案的起點：一個我自己做的、開源、可自主架設的匿名問答系統。
 
-## 發送留言的系統架設教學
+[![License](https://img.shields.io/github/license/AiixiBear/aqa_system)](/LICENSE)
+[![Static Badge](https://img.shields.io/badge/https%3A%2F%2Fwww.aiixi.cc%2Fposts%2Faqa-system%2F?label=Tutorial%20Article)](https://www.aiixi.cc/posts/aqa-system/)
 
-### 完整原理
+> [!IMPORTANT]
+> 這裡有最新、最完整的架設教學文章：[https://www.aiixi.cc/posts/aqa-system/](https://www.aiixi.cc/posts/aqa-system/)
 
-> 下方流程圖是使用AI進行摘要，因為我能力不足，我不會做流程圖，非常抱歉！
 
-```mermaid
-flowchart TD
-    %% 使用者公開留言流程
-    User[使用者] --> Frontend[留言前台<br/>frontend/index.html]
-    Frontend --> Input[輸入留言內容<br/>讀取 URL tag]
-    Input --> TurnstileWidget[Cloudflare Turnstile<br/>取得驗證 Token]
-    TurnstileWidget --> Submit[送出 POST 請求<br/>text、tag、turnstile token]
+---
 
-    %% Cloudflare Worker 驗證與轉送流程
-    Submit --> Worker[Cloudflare Worker<br/>worker/index.js]
-    Worker --> ValidateInput{檢查請求與內容}
-    ValidateInput -->|不通過| ReturnError[回傳錯誤訊息給前台]
-    ValidateInput -->|通過| GetClientInfo[取得 IP 與 User-Agent]
-    GetClientInfo --> VerifyTurnstile[呼叫 Turnstile Siteverify API]
-    VerifyTurnstile --> TurnstileAPI[Cloudflare Turnstile API]
-    TurnstileAPI --> TurnstileResult{Token 驗證成功？}
-    TurnstileResult -->|否| ReturnError
-    TurnstileResult -->|是| SendToGAS[轉送留言資料至寫入用 GAS]
+## 🌟 專案特色
 
-    %% Google Apps Script 寫入流程
-    SendToGAS --> WriteGAS[Google Apps Script<br/>gas/main.gs]
-    WriteGAS --> IPInfo[IPinfo API<br/>查詢國家／ASN]
-    IPInfo --> GenerateCode[產生留言專屬代碼<br/>AQA-0001]
-    GenerateCode --> GoogleSheet[(Google Sheets<br/>留言資料庫)]
-    GoogleSheet --> WriteResult[回傳成功狀態與專屬代碼]
-    WriteResult --> WorkerSuccess[Worker 回傳 JSON]
-    WorkerSuccess --> ShowCode[前台顯示留言專屬代碼]
+- **完全免費與 Serverless 架構**：靠 Cloudflare Workers 與 Google Sheets + Apps Script 即可運行，免架設伺服器、無需輸入信用卡資訊。
+- **人機驗證與安全防護**：整合 **Cloudflare Turnstile** 驗證防機器人，搭配雙向 `WRITE_KEY` / `READ_KEY` 金鑰防護與 Cloudflare Worker 後台代理。
+- **無痕資安設計**：後台密碼僅儲存於 `sessionStorage`，關閉分頁即自動銷毀，避免密碼明文存於 `localStorage` 之資安風險。
+- **來源解析**：自動收集來源 IP 與 User-Agent，並整合 `ipinfo.io` API 解析來源國家與 ASN。
+- **動態字級排版 (Dynamic Font Size)**：卡片自動根據留言字數計算最佳字體大小與行高，短留言醒目、長留言自動收縮防爆框。
+- **專屬流水號與來源 Tag**：每則留言皆配發唯一識別碼（如 `AQA-9487`），網址支援 `?tag=` 參數方便管道分流與記錄。
+- **一鍵生成 IG 限動圖卡**：內建篩選後台，可輕鬆過濾留言，一鍵匯出無按鈕干擾的乾淨 PNG 圖卡。
 
-    %% 管理者後台閱讀與產圖流程
-    Admin[管理者] --> AdminPanel[留言管理後台<br/>admin_panel/index.html]
-    AdminPanel --> AdminGAS[後台 Google Apps Script<br/>admin_panel_gas/main.gs]
-    AdminGAS --> GoogleSheet
-    GoogleSheet --> AdminGAS
-    AdminGAS --> MessageJSON[回傳留言 JSON 資料]
-    MessageJSON --> AdminPanel
-    AdminPanel --> Filter[後台篩選留言<br/>關鍵字、IP、tag、代碼]
-    Filter --> Card[顯示留言卡片]
-    Card --> Export[使用 html2canvas<br/>下載 PNG 圖卡]
+---
+
+## 📸 畫面預覽
+
+| 前台公開留言頁面 | 手機版頁面 |
+| :---: | :---: |
+| ![前端預覽](https://raw.githubusercontent.com/AiixiBear/aqa_system/main/readme_images/preview_169.webp) | ![手機版前端預覽](https://raw.githubusercontent.com/AiixiBear/aqa_system/main/readme_images/preview_916.webp) |
+
+| 後台留言管理面板 | 留言來源與裝置資訊 |
+| :---: | :---: |
+| ![後台留言面板](https://raw.githubusercontent.com/AiixiBear/aqa_system/main/readme_images/panel.webp) | ![後台資訊](https://raw.githubusercontent.com/AiixiBear/aqa_system/main/readme_images/panel_show_info.webp) |
+---
+
+## ⚙️ 系統架構
+
+整個架構分為兩條 Serverless 路徑：
+
+```text
+[公開留言路徑]
+使用者 ➔ 前台網頁 ➔ Cloudflare Worker (驗證 Turnstile) ➔ Google Apps Script (查 IP/配發號碼) ➔ Google Sheets
+
+[後台管理路徑]
+管理者 ➔ 後台網頁 (密碼登入) ➔ Cloudflare Worker 代理驗證 ➔ 後台 Google Apps Script ➔ Google Sheets ➔ 渲染卡片 (動態字級) ➔ 匯出 PNG
+```
+
+## 架設前的準備
+所有服務皆可免費使用，且**無需輸入信用卡**：
+
+* **Google 帳號**：建立 Google Sheets 試算表與部署 Apps Script。
+* **Cloudflare 帳號**：部署 Workers 與設定 Turnstile Widget。
+* **IPinfo Lite API Token**：註冊 [ipinfo.io/lite](https://ipinfo.io/lite) 取得免費 Token。
+* **靜態網頁託管**：GitHub Pages、Cloudflare Pages 或任何靜態託管空間。
+
+---
+
+## 🚀 架設教學
+
+### 第一階段：公開留言系統
+
+#### 1. Google Sheets 試算表
+
+1. 至 [Google Sheets](https://docs.google.com/spreadsheets/) 建立空白試算表。
+2. 第一列設定表頭：
+```text
+接收時間 （台北時間）   留言    來源IP  Tags    來源國家/地區   AS_Name User-Agent  唯一辨識碼
+
 ```
 
 
-### Google Sheets
+3. 記下試算表的 **URL** 與 **頁籤名稱**。
 
-1. 去 [Google Sheets](https://docs.google.com/spreadsheets/) 建立一個空白試算表
-2. 在**第一欄**貼入：
-    ```
-    接收時間 （台北時間）	留言	來源IP	Tags	來源國家/地區	AS_Name	User-Agent	唯一辨識碼
-    ```
-3. 記下試算表URL和試算表名稱
-    ![示範](/readme_images/googlesheet.webp)
+#### 2. 寫入用 Google Apps Script
 
-### Google Apps Scripts
-1. 打開 [Google Apps Script](https://script.google.com/home/) 建立新專案
-2. 程式碼填入 [/gas/main.gs](/gas/main.gs) 的程式碼
-3. [https://ipinfo.io/lite](https://ipinfo.io/lite) 註冊獲得一個免費的 ipinfo.io API TOKEN ，免費版可以顯示留言來源IP的國家/地區和AS Name
-4. 回到GAS專案底下的設定 > 指令碼屬性 填入以下
+1. 開啟 [Google Apps Script](https://script.google.com/home/) 建立新專案。
+2. 貼入專案檔 `gas/main.gs` 的內容。
+3. 於 **專案設定 ➔ 指令碼屬性** 新增：
+* `IPINFO_TOKEN`：你的 ipinfo.io API Token
+* `SHEET_NAME`：試算表名稱
+* `SHEET_URL`：試算表 URL
+* `WRITE_KEY`：自訂一串隨機金鑰（長度建議 32 字元以上）
 
-    | 屬性 | 值 | 說明 |
-    | --- | --- | --- |
-    | IPINFO_TOKEN | 你的ipinfo.io API Token | 剛剛申請的 |
-    | SHEET_NAME | 試算表的名稱 | 剛剛記下的 |
-    | SHEET_URL | 試算表URL | 剛剛記下的 |
-    | WRITE_KEY | 自訂的隨機密鑰 | 一串夠長的亂數字串，Worker 與本專案共用，避免有人繞過 Worker 直灌資料。請自行生成後記好，稍後要填入 Worker 環境變數。 |
-5. 部署，並記下部署的網頁應用程式的URL
-    ![示範](/readme_images/gas_deploy.webp)
 
-### Cloudflare Workers
+4. 部署為網頁應用程式（存取權限設為「所有人」），記下部署 URL。
 
-1. 註冊 [Cloudflare](https://dash.cloudflare.com/)
-2. 前往 運算 > Workers 和 Pages
-3. 建立應用程式
-4. 部署Hello World，記下Worker網址
-    ![示範](/readme_images/worker.webp)
-5. 按下**編輯代碼**
-6. 直接替換原本的程式碼，貼入 [/worker/index.js](/worker/index.js) 的程式碼
-    ![示範](/readme_images/worker_code.webp)
-7. 部署
-8. 前往註冊一個 Cloudflare Turnstile 小工具，記下 `Site Key` 和 `Secret Key`
-9. 回到剛剛的 Worker 頁面，前往設定頁面，填入**環境變數 (Runtime variables and secrets)**：
-    | 變數名稱 | 值 |
-    | --- | --- |
-    | TURNSTILE_SECRET_KEY | 你的Turnstile Secret Key |
-    | APPS_SCRIPT_URL | 你的 Apps Script URL |
-    | APPS_SCRIPT_WRITE_KEY | 剛剛在寫入用 GAS 設定的 WRITE_KEY，必須完全一致 |
-10. 部署
+#### 3. 前台 Cloudflare Worker
 
-### 前端網頁
+1. 於 Cloudflare 建立 Worker。
+2. 貼入專案檔 `worker/index.js` 的內容。
+3. 註冊 **Cloudflare Turnstile** 小工具，取得 `Site Key` 與 `Secret Key`。
+4. 於 Worker 的 **設定 ➔ Runtime variables** 設定環境變數：
+* `TURNSTILE_SECRET_KEY`：Turnstile Secret Key
+* `APPS_SCRIPT_URL`：寫入用 GAS 部署 URL
+* `APPS_SCRIPT_WRITE_KEY`：與 GAS 一致的 `WRITE_KEY`
 
-只有一個HTML檔案，位於 [/frontend/index.html](/frontend/index.html)，放在任何的靜態網頁伺服器都可以。
 
-index.html 需要修改的變數：
+5. 部署並記下 Worker URL。
 
-| 名稱 | 值 | 說明 |
-| --- | --- | --- |
-| YOUR_ICON_URL_HERE | 請自行替換成你的Icon | 預設大小為`64x64` |
-| YOUR_WORKER_URL_HERE | 請自行替換成你的 Worker 的URL | |
-| YOUR_TURNSTILE_SITE_KEY_HERE | 請自行替換成你的 Cloudflare Turnstile Site Key | |
+#### 4. 前台 HTML
 
-> 至此 你的留言發送系統、資料庫就做好了
+1. 編輯 `frontend/index.html`。
+2. 替換以下變數：
+* `YOUR_ICON_URL_HERE`：圖示 URL
+* `YOUR_WORKER_URL_HERE`：前台 Worker URL
+* `YOUR_TURNSTILE_SITE_KEY_HERE`：Turnstile Site Key
 
-## 留言查看面板(簡稱後台)架設教學
 
-1. 打開 [Google Apps Script](https://script.google.com/home/) 建立新專案
-2. 程式碼貼入 [/admin_panel_gas/main.gs](/admin_panel_gas/main.gs) 的程式碼
-3. GAS專案底下的設定 > 指令碼屬性 填入以下屬性
+3. 將 HTML 部署至靜態託管平台。
 
-    | 屬性 | 值 | 說明 |
-    | --- | --- | --- |
-    | IPINFO_TOKEN | 你的ipinfo.io API Token | 這是以防試算表的IP地址資料（IP所在地）不小心被刪除，可以直接執行GAS程式碼中的`repairOldData`function來復原IP資料。如果你不需要可以不填，正常情況下完全不會影響後台運作。 |
-    | SHEET_NAME | 試算表的名稱 | 留言資料庫的那個試算表的名稱 |
-    | SHEET_URL | 試算表URL | 剛留言資料庫的那個試算表的URL |
-    | TIMEZONE | 你的留言圖卡顯示的時間的時區 | 若不指定，預設值為：`Asia/Taipei`，即台北時間 |
-    | READ_KEY | 自訂的隨機密鑰 | 後台讀取留言時必須帶上這把金鑰，避免有人拿到後台GAS網址就直接 dump 全部留言與 IP。請生成一串夠長的亂數，稍後填入後台 index.html。 |
+---
 
-4. 後台一樣只有一個HTML檔案，位於 [/admin_panel/index.html](/admin_panel/index.html)，放在任何的靜態網頁伺服器都可以。目前後台已內建 READ_KEY 驗證（後台GAS 驗證，不是帳號密碼登入）。若你想再加一層保護，可以自行使用基於 URL 的存取控制（例如 `www.example.com/admin-panel-password-123456789abcdefg`）或靜態網頁託管商提供的存取限制。
-5. 編輯檔案，修改 index.html 的變數
+### 第二階段：留言查看面板（後台）
 
-    | 變數名稱 | 值 | 說明 |
-    | --- | --- | --- |
-    | APPS_SCRIPT_URL | 請自行替換至後台GAS的URL | |
-    | YOUR_READ_KEY_HERE | 剛剛在後台GAS設定的 READ_KEY | 必須完全一致，否則後台會顯示「驗證失敗」 |
-    | YOUR_CARD_IMAGE_URL_HERE | 每張留言圖卡的背景圖片 | 有程式碼中兩處，記得替換。1:1圖片效果最佳。 |
+#### 1. 後台 Google Apps Script
 
-> 至此，你的後台就架設好了！
+1. 建立新的 Google Apps Script 專案，貼入 `admin_panel_gas/main.gs`。
+2. 於指令碼屬性設定：
+* `SHEET_NAME`：試算表名稱
+* `SHEET_URL`：試算表 URL
+* `READ_KEY`：自訂一串後台讀取隨機金鑰
+* `TIMEZONE`：預設 `Asia/Taipei`
+* `IPINFO_TOKEN`：（可選）資料修復用
+
+
+3. 部署為網頁應用程式（權限設為「所有人」），記下部署 URL。
+
+#### 2. 後台 Cloudflare Worker 代理
+
+1. 建立新的 Worker（如 `aqa-admin-proxy`），貼入 `admin_panel_worker/index.js`。
+2. 於環境變數設定：
+* `APPS_SCRIPT_URL`：後台 GAS 部署 URL
+* `ADMIN_PASSWORD`：自訂後台登入密碼
+
+
+3. 部署並記下 Worker URL。
+
+#### 3. 後台 HTML
+
+1. 編輯 `admin_panel/index.html`。
+2. 替換以下變數：
+* `WORKER_URL`：後台 Worker URL
+* `YOUR_CARD_IMAGE_URL_HERE`：卡片背景圖（預設 `bg.jpg`）
+
+
+3. 將 HTML 部署至靜態託管平台。
+
+---
+
+## 🔒 安全性設計
+
+* **Turnstile 防機器人**：有效阻止自動化腳本洗版與垃圾留言。
+* **雙向金鑰驗證**：前台與後台 GAS 分別透過 `WRITE_KEY` 與 `READ_KEY` 保護，防止繞過 Worker 直接存取 API。
+* **無痕憑證管理**：管理者密碼僅暫存於 `sessionStorage`，視窗關閉即自動抹除，防範 XSS 竊取風險。
+* **Lock Service 互斥鎖**：確保多人同時留言時，流水號不重覆、不撞號。
+* **排版保護機制**：動態字數計算與字級縮放，避免超長字串破壞卡片視覺佈局。
+
+---
+
+## ❓ 常見問題 (FAQ)
+
+---
+
+## 📄 配額與定價文件參考
+
+* [Google Apps Script 服務每日配額文件](https://developers.google.com/apps-script/guides/services/quotas?hl=zh-tw)
+* [Cloudflare Workers 方案定價文件](https://www.cloudflare.com/zh-tw/plans/developer-platform-pricing/)
+
+---
+
+## 📜 License
+
+本專案採用 [MIT License](https://www.google.com/search?q=LICENSE) 條款開源，歡迎自由使用、修改與二次開發。
