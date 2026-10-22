@@ -6,14 +6,21 @@
 <title>匿名留言卡片生成器</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<link rel="icon" type="image/x-icon" href="https://www.aiixi.cc/favicon.ico">
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Huninn&family=Zen+Maru+Gothic:wght@500&display=swap');
+    @font-face {
+        font-family: 'Huninn';
+        src: url('https://www.aiixi.cc/fonts/Huninn-Regular.woff2') format('woff2');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+    }
     body {
         background: linear-gradient(135deg,#0f172a,#1e293b);
-        color: rgb(0, 0, 0);
+        color: #ffffff;
         font-family: "Huninn", "sans-serif"!important;
     }
-   .title { color: white; }
+   .title { color: #00ff99; }
    .card {
         border-radius: 24px;
         padding: 24px;
@@ -24,14 +31,13 @@
         flex-direction: column;
         justify-content: space-between;
         box-sizing: border-box;
-        word-break: break-all;
+        word-break: break-word;
         position: relative;
         overflow: hidden;
         box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
         border: 1px solid rgba(255, 255, 255, 0.15);
         transition: all 0.3s ease;
         flex-shrink: 0;
-        background-color: rgb(45, 41, 41);
     }
    .card::before {
         content: "";
@@ -39,7 +45,7 @@
         top: 0; left: 0; right: 0; bottom: 0;
         background-image:
             linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)),
-            url('YOUR_CARD_IMAGE_URL_HERE');
+            url('./bg.jpg');
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
@@ -54,11 +60,10 @@
    .card:hover::before {
         background-image:
             linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
-            url('YOUR_CARD_IMAGE_URL_HERE');
+            url('./bg.jpg');
     }
    .card > * { position: relative; z-index: 1; }
 
-    /* 設定卡片外層容器 */
    .card-wrapper {
         position: relative;
         display: flex;
@@ -67,7 +72,6 @@
         gap: 0;
     }
     
-    /* 隱藏資訊面板，預設顯示於卡片下方 */
    .info-panel {
         display: none;
         position: absolute;
@@ -93,7 +97,6 @@
         flex-shrink: 0;
     }
     
-    /* 展開隱藏內容時的樣式調整 */
    .show-hidden .card-wrapper {
         gap: 12px;
     }
@@ -105,27 +108,19 @@
         transform: none;
     }
     
-    /* 觸發顯示面板的條件 */
    .card-wrapper:hover .info-panel,
    .show-hidden .info-panel {
         display: flex;
     }
 
-   .msg-text { font-size: 25px!important; }
-   
-   .show-hidden .card .msg-text {
-        font-size: 25px!important;
-        line-height: 1.4!important;
-    }
-    
    .filter-input { min-width: 160px; }
    .download-btn { transition: background-color 0.2s, opacity 0.2s; }
    .download-btn:hover { background-color: #3b82f6; }
    .download-btn:active { background-color: #2563eb; }
    .msg-text {
-        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8), -1px -1px 3px rgba(0, 0, 0, 0.8);
+        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8), -1px -1px 3px rgba(0, 0, 0, 0.8);
     }
-   .shadow-sm-text { text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8); }
+   .shadow-sm-text { text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8)!important;}
 </style>
 </head>
 <body class="min-h-screen flex flex-col items-center py-8">
@@ -134,10 +129,10 @@
 <div id="loading" class="text-white text-xl mb-4">讀取中...</div>
 
 <div id="filters" class="w-full max-w-5xl mb-4 flex flex-wrap gap-2 items-center justify-center">
-    <input id="kw" class="filter-input px-3 py-2 rounded shadow-sm" placeholder="關鍵字篩選 (留言內容)" />
-    <input id="ip" class="filter-input px-3 py-2 rounded shadow-sm" placeholder="IP 篩選 (部分匹配)" />
-    <input id="tag" class="filter-input px-3 py-2 rounded shadow-sm" placeholder="辨識碼 篩選 (精確或部分匹配)" />
-    <input id="code" class="filter-input px-3 py-2 rounded shadow-sm" placeholder="留言專屬代碼 篩選 （精確或部分）" />
+    <input id="kw" class="filter-input px-3 py-2 rounded shadow-sm text-black" placeholder="關鍵字篩選 (留言內容)" />
+    <input id="ip" class="filter-input px-3 py-2 rounded shadow-sm text-black" placeholder="IP 篩選 (部分匹配)" />
+    <input id="tag" class="filter-input px-3 py-2 rounded shadow-sm text-black" placeholder="辨識碼 篩選 (精確或部分匹配)" />
+    <input id="code" class="filter-input px-3 py-2 rounded shadow-sm text-black" placeholder="留言專屬代碼 篩選 （精確或部分）" />
     <button id="apply" class="px-4 py-2 bg-blue-500 text-white rounded">篩選</button>
     <button id="clear" class="px-4 py-2 bg-gray-300 text-black rounded">清除</button>
     <label class="flex items-center gap-2 text-white px-2">
@@ -147,39 +142,112 @@
 </div>
 
 <div id="list" class="w-full max-w-5xl flex flex-wrap justify-center gap-4"></div>
+<!-- 自定義密碼輸入彈窗 -->
+<div id="passwordModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center hidden">
+    <div class="bg-slate-900 border border-white/20 p-6 rounded-3xl shadow-2xl w-80 flex flex-col gap-4">
+        <h3 class="text-lg font-bold text-emerald-400 text-center">後台管理驗證</h3>
+        <p class="text-xs text-gray-300 text-center leading-relaxed">請輸入後台管理密碼以檢視留言牆：</p>
+        <input type="password" id="modalPasswordInput" class="px-3 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white focus:outline-none focus:border-emerald-400 text-sm" placeholder="請輸入密碼..." />
+        <div class="flex gap-2 justify-end mt-1">
+            <button id="modalSubmitBtn" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold rounded-xl text-sm transition-all shadow-lg shadow-emerald-500/20">確認進入</button>
+        </div>
+    </div>
+</div>
 
 <script>
-const APPS_SCRIPT_URL = "YOUR_DATABASE_APPS_SCRIPT_URL";
-const READ_KEY = "YOUR_READ_KEY_HERE";
+// Define Cloudflare Worker URL
+const WORKER_URL = "你的 Admin Panel Worker url here";
+let adminPassword = sessionStorage.getItem('admin_password') || '';
 let messages = [];
 
+function getDynamicFontSize(text) {
+    if (!text) return { fontSize: '28px', lineHeight: '1.3' };
+    
+    // 計算近似視覺長度：全形/中文算 1，半形英文/數字算 0.5
+    const visualLength = Array.from(text).reduce((acc, char) => {
+        return acc + (char.charCodeAt(0) > 255 ? 1 : 0.5);
+    }, 0);
+
+    if (visualLength <= 8) {
+        return { fontSize: '28px', lineHeight: '1.3' };
+    } else if (visualLength <= 15) {
+        return { fontSize: '26px', lineHeight: '1.3' };
+    } else if (visualLength <= 30) {
+        return { fontSize: '22px', lineHeight: '1.4' };
+    } else if (visualLength <= 45) {
+        return { fontSize: '20px', lineHeight: '1.5' };
+    } else if (visualLength <= 60) {
+        return { fontSize: '18px', lineHeight: '1.5' };
+    } else if (visualLength <= 80) {
+        return { fontSize: '16px', lineHeight: '1.5' };
+    } else {
+        return { fontSize: '14px', lineHeight: '1.6' };
+    }
+}
+
+// 顯示自定義密碼輸入彈窗
+function showPasswordModal() {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('passwordModal');
+        const input = document.getElementById('modalPasswordInput');
+        const submitBtn = document.getElementById('modalSubmitBtn');
+        
+        modal.classList.remove('hidden');
+        input.value = '';
+        input.focus();
+        
+        const handleSubmit = () => {
+            const pwd = input.value.trim();
+            if (pwd) {
+                modal.classList.add('hidden');
+                submitBtn.removeEventListener('click', handleSubmit);
+                input.removeEventListener('keydown', handleKeydown);
+                resolve(pwd);
+            }
+        };
+        
+        const handleKeydown = (e) => {
+            if (e.key === 'Enter') {
+                handleSubmit();
+            }
+        };
+        
+        submitBtn.addEventListener('click', handleSubmit);
+        input.addEventListener('keydown', handleKeydown);
+    });
+}
+
 async function loadMessages() {
-    document.getElementById('loading').style.display = 'block';
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
-    try {
-        const sep = APPS_SCRIPT_URL.includes("?") ? "&" : "?";
-        const url = APPS_SCRIPT_URL + sep + "readKey=" + encodeURIComponent(READ_KEY);
-        const res = await fetch(url, {
-            signal: controller.signal,
-            headers: { "X-Read-Key": READ_KEY }
-        });
-        clearTimeout(timeoutId);
-        const data = await res.json();
-        if (!Array.isArray(data)) {
-            document.getElementById('list').innerHTML =
-                '<div class="text-white">讀取失敗：' + escapeHtml(data.message || '未知錯誤') + '</div>';
+    if (!adminPassword) {
+        adminPassword = await showPasswordModal();
+        if (!adminPassword) {
+            document.getElementById('list').innerHTML = '<div class="text-white">需要密碼才能檢視留言牆喔！</div>';
+            document.getElementById('loading').style.display = 'none';
             return;
         }
+        sessionStorage.setItem('admin_password', adminPassword);
+    }
+
+    document.getElementById('loading').style.display = 'block';
+    try {
+        const res = await fetch(WORKER_URL, {
+            headers: { 'X-Admin-Password': adminPassword }
+        });
+        
+        if (res.status === 401) {
+            sessionStorage.removeItem('admin_password');
+            alert("密碼錯誤，請重新整理頁面輸入正確密碼！");
+            location.reload();
+            return;
+        }
+
+        if (!res.ok) throw new Error('讀取失敗');
+
+        const data = await res.json();
         messages = data.slice().reverse();
         renderMessages();
     } catch (e) {
-        clearTimeout(timeoutId);
-        if (e.name === 'AbortError') {
-            document.getElementById('list').innerHTML = '<div class="text-white">讀取逾時，請重新整理頁面再試。</div>';
-        } else {
-            document.getElementById('list').innerHTML = '<div class="text-white">讀取失敗，請稍後再試。</div>';
-        }
+        document.getElementById('list').innerHTML = '<div class="text-white">讀取失敗或連線錯誤，請稍後再試。</div>';
         console.error(e);
     } finally {
         document.getElementById('loading').style.display = 'none';
@@ -190,8 +258,8 @@ function renderMessages() {
     const kw = document.getElementById('kw').value.trim().toLowerCase();
     const ip = document.getElementById('ip').value.trim();
     const tag = document.getElementById('tag').value.trim().toLowerCase();
-    const list = document.getElementById('list');
     const code = document.getElementById('code').value.trim();
+    const list = document.getElementById('list');
 
     list.innerHTML = '';
     
@@ -214,21 +282,21 @@ function renderMessages() {
     }
     
     filtered.forEach(item => {
-        const isLongText = item.text.length > 12;
+        const fontStyle = getDynamicFontSize(item.text);
         const wrapper = document.createElement('div');
         wrapper.className = "card-wrapper";
         wrapper.innerHTML = `
-            <div class="card shadow-lg">
+            <div class="card shadow-sm">
                 <div class="flex-1 flex items-center justify-center w-full">
-                    <div class="text-xl text-white font-bold text-center px-2 tracking-wide leading-relaxed msg-text ${isLongText? 'long-text' : ''}">
+                    <div class="font-bold text-center px-2 tracking-wide msg-text" style="font-size: ${fontStyle.fontSize} !important; line-height: ${fontStyle.lineHeight} !important;" data-text-len="${item.text.length}">
                         ${escapeHtml(item.text)}
                     </div>
                 </div>
                 <div class="w-full text-center mt-3 flex flex-col gap-1.5">
-                    <div class="text-sm text-white font-medium tracking-wider shadow-sm-text">${escapeHtml(item.time || '')}</div>
-                    <div class="text-xs text-white uppercase tracking-widest scale-95 shadow-sm-text">愛希匿名問答#${escapeHtml(item.code || '這則留言代碼未知')}</div>
+                    <div class="text-sm font-medium tracking-wider shadow-sm-text">${escapeHtml(item.time || '')}</div>
+                    <div class="text-xs uppercase tracking-widest scale-95 shadow-sm-text">愛希匿名問答#${escapeHtml(item.code || '這則留言代碼未知')}</div>
                 </div>
-                <button class="download-btn mt-3 w-full py-1.5 bg-white/10 hover:bg-blue-500 text-white/80 hover:text-white border border-white/20 hover:border-transparent rounded-xl text-xs font-medium tracking-wide transition-all duration-200 data-html2canvas-ignore">
+                <button class="download-btn mt-3 w-full py-1.5 bg-white/10 hover:bg-blue-500 hover:text-white border border-white/20 hover:border-transparent rounded-xl text-xs font-medium tracking-wide transition-all duration-200 data-html2canvas-ignore">
                     下載圖片卡片
                 </button>
             </div>
@@ -244,12 +312,12 @@ function renderMessages() {
         `;
         list.appendChild(wrapper);
         const downloadBtn = wrapper.querySelector('.download-btn');
-        downloadBtn.addEventListener('click', () => exportToImage(wrapper));
+        downloadBtn.addEventListener('click', () => exportToImage(wrapper, item.text));
     });
 }
 
 function escapeHtml(s) {
-    if (!s && s!== 0) return '';
+    if (!s && s !== 0) return '';
     return String(s)
        .replace(/&/g, '&amp;')
        .replace(/</g, '&lt;')
@@ -279,7 +347,7 @@ if (showHiddenCheckbox) {
     });
 }
 
-function exportToImage(wrapperElement) {
+function exportToImage(wrapperElement, textContent) {
     const cardElement = wrapperElement.querySelector('.card');
     const downloadBtn = cardElement.querySelector('.download-btn');
     const showHiddenCheckbox = document.getElementById('showHidden');
@@ -290,6 +358,8 @@ function exportToImage(wrapperElement) {
     const allWrappers = Array.from(document.querySelectorAll('.card-wrapper'));
     const wrapperIndex = allWrappers.indexOf(wrapperElement);
     
+    const fontStyle = getDynamicFontSize(textContent);
+
     html2canvas(wrapperElement, {
         scale: 3,
         useCORS: true,
@@ -311,14 +381,8 @@ function exportToImage(wrapperElement) {
                 
                 const msgText = clonedCard.querySelector('.msg-text');
                 if (msgText) {
-                    const isLongText = msgText.classList.contains('long-text');
-                    if (isShowingHidden || isLongText) {
-                        msgText.style.setProperty('font-size', '25px', 'important');
-                        msgText.style.setProperty('line-height', '1.3', 'important');
-                    } else {
-                        msgText.style.setProperty('font-size', '25px', 'important');
-                        msgText.style.setProperty('line-height', '1.4', 'important');
-                    }
+                    msgText.style.setProperty('font-size', fontStyle.fontSize, 'important');
+                    msgText.style.setProperty('line-height', fontStyle.lineHeight, 'important');
                 }
             }
             
@@ -333,7 +397,7 @@ function exportToImage(wrapperElement) {
     }).then(canvas => {
         if (downloadBtn) downloadBtn.style.visibility = '';
         const link = document.createElement('a');
-        link.download = '匿名留言卡片.png';
+        link.download = '匿名留言卡片_aiixi.png';
         link.href = canvas.toDataURL('image/png');
         link.click();
     }).catch(err => {
