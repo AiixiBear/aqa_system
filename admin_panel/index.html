@@ -1,8 +1,9 @@
 <!doctype html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
 <title>匿名留言卡片生成器</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
@@ -15,16 +16,25 @@
         font-style: normal;
         font-display: swap;
     }
+
+    * { -webkit-tap-highlight-color: transparent; }
+
     body {
-        background: linear-gradient(135deg,#0f172a,#1e293b);
-        color: #ffffff;
-        font-family: "Huninn", "sans-serif"!important;
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+        color: #fff;
+        font-family: "Huninn", system-ui, -apple-system, "Noto Sans TC", sans-serif !important;
+        min-height: 100dvh;
     }
-   .title { color: #00ff99; }
-   .card {
+
+    .title {
+        color: #00ff99;
+        text-shadow: 0 0 24px rgba(0, 255, 153, .25);
+    }
+
+    /* ---------- 卡片 ---------- */
+    .card {
         border-radius: 24px;
         padding: 24px;
-        margin-bottom: 10px;
         width: 300px;
         height: 300px;
         display: flex;
@@ -32,47 +42,61 @@
         justify-content: space-between;
         box-sizing: border-box;
         word-break: break-word;
-        position: relative;
         overflow: hidden;
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        transition: all 0.3s ease;
+        position: relative;
         flex-shrink: 0;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, .3);
+        border: 1px solid rgba(255, 255, 255, .15);
+        transition: transform .3s ease, border-color .3s ease, box-shadow .3s ease;
+        isolation: isolate;
     }
-   .card::before {
+
+    .card::before {
         content: "";
         position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
+        inset: 0;
+        z-index: -1;
         background-image:
-            linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)),
-            url('./bg.jpg');
+            linear-gradient(rgba(0, 0, 0, .45), rgba(0, 0, 0, .45)),
+            url('YOUR_CARD_IMAGE_URL_HERE');
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
-        z-index: 0;
-        transition: all 0.3s ease;
+        transition: background-image .3s ease;
     }
-   .card:hover {
-        transform: translateY(-6px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        box-shadow: 0 12px 40px 0 rgba(59, 130, 246, 0.25);
-    }
-   .card:hover::before {
-        background-image:
-            linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
-            url('./bg.jpg');
-    }
-   .card > * { position: relative; z-index: 1; }
 
-   .card-wrapper {
+    .card:hover {
+        transform: translateY(-6px);
+        border-color: rgba(255, 255, 255, .3);
+        box-shadow: 0 12px 40px 0 rgba(59, 130, 246, .25);
+    }
+
+    .card:hover::before {
+        background-image:
+            linear-gradient(rgba(0, 0, 0, .4), rgba(0, 0, 0, .4)),
+            url('YOUR_CARD_IMAGE_URL_HERE');
+    }
+
+    .msg-text {
+        text-shadow: 2px 2px 5px rgba(0, 0, 0, .8), -1px -1px 3px rgba(0, 0, 0, .8);
+        overflow-wrap: anywhere;
+    }
+
+    .shadow-sm-text { text-shadow: 2px 2px 5px rgba(0, 0, 0, .8) !important; }
+
+    /* ---------- 卡片外層 / 資訊面板 ---------- */
+    .card-wrapper {
         position: relative;
         display: flex;
         flex-direction: column;
         align-items: center;
         gap: 0;
+        transition: gap .2s ease;
     }
-    
-   .info-panel {
+
+    .card-wrapper.is-hidden { display: none !important; }
+
+    .info-panel {
         display: none;
         position: absolute;
         top: calc(100% + 12px);
@@ -82,331 +106,586 @@
         flex-direction: column;
         gap: 8px;
         width: 300px;
-        min-width: 200px;
         max-width: 340px;
-        height: auto;
         box-sizing: border-box;
         padding: 16px;
         border-radius: 20px;
-        background: rgba(15, 23, 42, 0.65);
-        border: 1px solid rgba(239, 68, 68, 0.35);
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-        color: #ffffff;
+        background: rgba(15, 23, 42, .72);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(239, 68, 68, .35);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, .35);
+        color: #fff;
         font-size: 12px;
         line-height: 1.6;
-        flex-shrink: 0;
+        max-height: 50vh;
+        overflow-y: auto;
+        overscroll-behavior: contain;
     }
-    
-   .show-hidden .card-wrapper {
-        gap: 12px;
+
+    .info-row {
+        display: flex;
+        gap: 6px;
+        align-items: flex-start;
     }
-   .show-hidden .info-panel {
+
+    .info-label {
+        flex: 0 0 auto;
+        color: #94a3b8;
+        font-weight: 600;
+    }
+
+    .info-value {
+        flex: 1 1 auto;
+        min-width: 0;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+    }
+
+    .info-panel a {
+        color: #60a5fa;
+        text-decoration: underline;
+        flex: 0 0 auto;
+    }
+
+    .info-panel a:hover { color: #93c5fd; }
+
+    /* 只在支援 hover 的裝置上顯示 */
+    @media (hover: hover) {
+        .card-wrapper:hover .info-panel { display: flex; }
+    }
+
+    /* 「顯示隱藏內容」開啟時，面板改為常駐展開 */
+    .show-hidden .card-wrapper { gap: 12px; }
+    .show-hidden .info-panel {
+        display: flex;
         position: relative;
-        top: auto;
-        bottom: auto;
-        left: auto;
+        inset: auto;
         transform: none;
     }
-    
-   .card-wrapper:hover .info-panel,
-   .show-hidden .info-panel {
-        display: flex;
+
+    /* ---------- 按鈕 / 表單 ---------- */
+    .download-btn {
+        cursor: pointer;
+        transition: background-color .2s, border-color .2s, color .2s, opacity .2s;
     }
 
-   .filter-input { min-width: 160px; }
-   .download-btn { transition: background-color 0.2s, opacity 0.2s; }
-   .download-btn:hover { background-color: #3b82f6; }
-   .download-btn:active { background-color: #2563eb; }
-   .msg-text {
-        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8), -1px -1px 3px rgba(0, 0, 0, 0.8);
+    .download-btn:hover:not(:disabled) {
+        background-color: #3b82f6;
+        border-color: transparent;
+        color: #fff;
     }
-   .shadow-sm-text { text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8)!important;}
+
+    .download-btn:active:not(:disabled) { background-color: #2563eb; }
+    .download-btn:disabled { opacity: .55; cursor: progress; }
+
+    button:focus-visible,
+    input:focus-visible,
+    a:focus-visible {
+        outline: 2px solid #34d399;
+        outline-offset: 2px;
+    }
+
+    .filter-input { min-width: 160px; }
+
+    /* ---------- 狀態區 ---------- */
+    .status-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        padding: 32px 24px;
+        color: #cbd5e1;
+        font-size: 14px;
+        text-align: center;
+    }
+
+    .spinner {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: 3px solid rgba(255, 255, 255, .15);
+        border-top-color: #34d399;
+        animation: spin .8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (prefers-reduced-motion: reduce) {
+        * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+        .card:hover { transform: none; }
+    }
 </style>
 </head>
-<body class="min-h-screen flex flex-col items-center py-8">
+<body class="min-h-screen flex flex-col items-center py-8 px-4">
 
-<h1 class="text-3xl font-bold mb-6 title">匿名留言牆</h1>
-<div id="loading" class="text-white text-xl mb-4">讀取中...</div>
+<header class="w-full max-w-5xl mb-6 flex items-center justify-between gap-4 flex-wrap">
+    <h1 class="text-3xl font-bold title">匿名留言牆</h1>
+    <div class="flex items-center gap-3">
+        <span id="count" class="text-xs text-slate-400"></span>
+        <button id="reload"
+                class="px-3 py-1.5 text-xs rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 transition-colors cursor-pointer">
+            ⟳ 重新整理
+        </button>
+    </div>
+</header>
 
 <div id="filters" class="w-full max-w-5xl mb-4 flex flex-wrap gap-2 items-center justify-center">
-    <input id="kw" class="filter-input px-3 py-2 rounded shadow-sm text-black" placeholder="關鍵字篩選 (留言內容)" />
-    <input id="ip" class="filter-input px-3 py-2 rounded shadow-sm text-black" placeholder="IP 篩選 (部分匹配)" />
-    <input id="tag" class="filter-input px-3 py-2 rounded shadow-sm text-black" placeholder="辨識碼 篩選 (精確或部分匹配)" />
-    <input id="code" class="filter-input px-3 py-2 rounded shadow-sm text-black" placeholder="留言專屬代碼 篩選 （精確或部分）" />
-    <button id="apply" class="px-4 py-2 bg-blue-500 text-white rounded">篩選</button>
-    <button id="clear" class="px-4 py-2 bg-gray-300 text-black rounded">清除</button>
-    <label class="flex items-center gap-2 text-white px-2">
+    <input id="kw"   class="filter-input px-3 py-2 rounded-lg shadow-sm text-black text-sm" placeholder="關鍵字篩選（留言內容）" />
+    <input id="ip"   class="filter-input px-3 py-2 rounded-lg shadow-sm text-black text-sm" placeholder="IP 篩選（部分匹配）" />
+    <input id="tag"  class="filter-input px-3 py-2 rounded-lg shadow-sm text-black text-sm" placeholder="辨識碼 篩選（部分匹配）" />
+    <input id="code" class="filter-input px-3 py-2 rounded-lg shadow-sm text-black text-sm" placeholder="留言專屬代碼 篩選（部分匹配）" />
+    <button id="apply" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm transition-colors cursor-pointer">篩選</button>
+    <button id="clear" class="px-4 py-2 bg-gray-300 hover:bg-gray-200 text-black rounded-lg text-sm transition-colors cursor-pointer">清除</button>
+    <label class="flex items-center gap-2 text-white px-2 cursor-pointer select-none">
         <input type="checkbox" id="showHidden" class="h-4 w-4" />
         <span class="text-sm">顯示隱藏內容</span>
     </label>
 </div>
 
+<!-- 狀態列（讀取中／錯誤／未解鎖） -->
+<div id="status" class="w-full max-w-5xl" role="status" aria-live="polite"></div>
+
 <div id="list" class="w-full max-w-5xl flex flex-wrap justify-center gap-4"></div>
-<!-- 自定義密碼輸入彈窗 -->
-<div id="passwordModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center hidden">
-    <div class="bg-slate-900 border border-white/20 p-6 rounded-3xl shadow-2xl w-80 flex flex-col gap-4">
-        <h3 class="text-lg font-bold text-emerald-400 text-center">後台管理驗證</h3>
+
+<p id="emptyState" class="hidden text-slate-400 text-center py-12 text-sm"></p>
+
+<!-- 密碼輸入彈窗 -->
+<div id="passwordModal"
+     class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-4"
+     role="dialog" aria-modal="true" aria-labelledby="pwdTitle">
+    <form id="pwdForm"
+          class="bg-slate-900 border border-white/20 p-6 rounded-3xl shadow-2xl w-full max-w-sm flex flex-col gap-4">
+        <h3 id="pwdTitle" class="text-lg font-bold text-emerald-400 text-center">後台管理驗證</h3>
         <p class="text-xs text-gray-300 text-center leading-relaxed">請輸入後台管理密碼以檢視留言牆：</p>
-        <input type="password" id="modalPasswordInput" class="px-3 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white focus:outline-none focus:border-emerald-400 text-sm" placeholder="請輸入密碼..." />
-        <div class="flex gap-2 justify-end mt-1">
-            <button id="modalSubmitBtn" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold rounded-xl text-sm transition-all shadow-lg shadow-emerald-500/20">確認進入</button>
+        <input type="password" id="modalPasswordInput" autocomplete="current-password"
+               class="px-3 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white focus:outline-none focus:border-emerald-400 text-sm"
+               placeholder="請輸入密碼..." />
+        <p id="modalError" class="text-xs text-rose-400 text-center hidden"></p>
+        <div class="flex gap-2 mt-1">
+            <button type="button" id="modalCancelBtn"
+                    class="flex-1 py-2.5 bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-xl text-sm transition-colors cursor-pointer">
+                取消
+            </button>
+            <button type="submit"
+                    class="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold rounded-xl text-sm transition-colors shadow-lg shadow-emerald-500/20 cursor-pointer">
+                確認進入
+            </button>
         </div>
-    </div>
+    </form>
 </div>
 
 <script>
-// Define Cloudflare Worker URL
-const WORKER_URL = "你的 Admin Panel Worker url here";
-let adminPassword = sessionStorage.getItem('admin_password') || '';
-let messages = [];
+(() => {
+    'use strict';
 
-function getDynamicFontSize(text) {
-    if (!text) return { fontSize: '28px', lineHeight: '1.3' };
-    
-    // 計算近似視覺長度：全形/中文算 1，半形英文/數字算 0.5
-    const visualLength = Array.from(text).reduce((acc, char) => {
-        return acc + (char.charCodeAt(0) > 255 ? 1 : 0.5);
-    }, 0);
+    /* ============ 設定 ============ */
+    const WORKER_URL = 'WORKER_URL';
+    const PWD_KEY    = 'admin_password';
 
-    if (visualLength <= 8) {
-        return { fontSize: '28px', lineHeight: '1.3' };
-    } else if (visualLength <= 15) {
-        return { fontSize: '26px', lineHeight: '1.3' };
-    } else if (visualLength <= 30) {
-        return { fontSize: '22px', lineHeight: '1.4' };
-    } else if (visualLength <= 45) {
-        return { fontSize: '20px', lineHeight: '1.5' };
-    } else if (visualLength <= 60) {
-        return { fontSize: '18px', lineHeight: '1.5' };
-    } else if (visualLength <= 80) {
-        return { fontSize: '16px', lineHeight: '1.5' };
-    } else {
+    /* ============ DOM ============ */
+    const $ = (id) => document.getElementById(id);
+
+    const listEl      = $('list');
+    const statusEl    = $('status');
+    const emptyEl     = $('emptyState');
+    const countEl     = $('count');
+    const showHiddenEl = $('showHidden');
+
+    const filterEls = {
+        kw:   $('kw'),
+        ip:   $('ip'),
+        tag:  $('tag'),
+        code: $('code'),
+    };
+
+    /* ============ State ============ */
+    const state = {
+        messages: [],
+        cards: [],          // [{ el, item }]
+        password: sessionStorage.getItem(PWD_KEY) || '',
+    };
+
+    /* ============ 工具 ============ */
+    function getDynamicFontSize(text) {
+        const s = String(text || '');
+        const visualLength = Array.from(s).reduce(
+            (acc, ch) => acc + (ch.charCodeAt(0) > 255 ? 1 : 0.5), 0
+        );
+
+        if (visualLength <= 8)  return { fontSize: '28px', lineHeight: '1.3' };
+        if (visualLength <= 15) return { fontSize: '26px', lineHeight: '1.3' };
+        if (visualLength <= 30) return { fontSize: '22px', lineHeight: '1.4' };
+        if (visualLength <= 45) return { fontSize: '20px', lineHeight: '1.5' };
+        if (visualLength <= 60) return { fontSize: '18px', lineHeight: '1.5' };
+        if (visualLength <= 80) return { fontSize: '16px', lineHeight: '1.5' };
         return { fontSize: '14px', lineHeight: '1.6' };
     }
-}
 
-// 顯示自定義密碼輸入彈窗
-function showPasswordModal() {
-    return new Promise((resolve) => {
-        const modal = document.getElementById('passwordModal');
-        const input = document.getElementById('modalPasswordInput');
-        const submitBtn = document.getElementById('modalSubmitBtn');
-        
-        modal.classList.remove('hidden');
-        input.value = '';
-        input.focus();
-        
-        const handleSubmit = () => {
-            const pwd = input.value.trim();
-            if (pwd) {
+    function el(tag, className, text) {
+        const node = document.createElement(tag);
+        if (className) node.className = className;
+        if (text !== undefined) node.textContent = text;
+        return node;
+    }
+
+    /* ============ 狀態列 ============ */
+    function setStatus(kind, message) {
+        statusEl.replaceChildren();
+
+        if (kind === 'ready') {
+            statusEl.hidden = true;
+            return;
+        }
+        statusEl.hidden = false;
+
+        const box = el('div', 'status-box');
+
+        if (kind === 'loading') {
+            box.appendChild(el('div', 'spinner'));
+            box.appendChild(el('p', '', '讀取中…'));
+        } else {
+            box.appendChild(el('p', '', message || '發生錯誤'));
+
+            const retry = el('button',
+                'px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold rounded-xl text-sm transition-colors cursor-pointer',
+                kind === 'locked' ? '輸入密碼' : '重新嘗試');
+            retry.type = 'button';
+            retry.addEventListener('click', loadMessages);
+            box.appendChild(retry);
+        }
+
+        statusEl.appendChild(box);
+    }
+
+    /* ============ 密碼彈窗 ============ */
+    function askPassword(errorMessage = '') {
+        return new Promise((resolve) => {
+            const modal  = $('passwordModal');
+            const form   = $('pwdForm');
+            const input  = $('modalPasswordInput');
+            const errEl  = $('modalError');
+            const cancel = $('modalCancelBtn');
+
+            let settled = false;
+
+            const cleanup = (result) => {
+                if (settled) return;
+                settled = true;
+                form.removeEventListener('submit', onSubmit);
+                document.removeEventListener('keydown', onKey);
+                cancel.onclick = null;
                 modal.classList.add('hidden');
-                submitBtn.removeEventListener('click', handleSubmit);
-                input.removeEventListener('keydown', handleKeydown);
-                resolve(pwd);
-            }
-        };
-        
-        const handleKeydown = (e) => {
-            if (e.key === 'Enter') {
-                handleSubmit();
-            }
-        };
-        
-        submitBtn.addEventListener('click', handleSubmit);
-        input.addEventListener('keydown', handleKeydown);
-    });
-}
+                resolve(result);
+            };
 
-async function loadMessages() {
-    if (!adminPassword) {
-        adminPassword = await showPasswordModal();
-        if (!adminPassword) {
-            document.getElementById('list').innerHTML = '<div class="text-white">需要密碼才能檢視留言牆喔！</div>';
-            document.getElementById('loading').style.display = 'none';
-            return;
-        }
-        sessionStorage.setItem('admin_password', adminPassword);
-    }
+            const onSubmit = (e) => {
+                e.preventDefault();
+                const value = input.value.trim();
+                if (!value) { input.focus(); return; }
+                cleanup(value);
+            };
 
-    document.getElementById('loading').style.display = 'block';
-    try {
-        const res = await fetch(WORKER_URL, {
-            headers: { 'X-Admin-Password': adminPassword }
+            const onKey = (e) => {
+                if (e.key === 'Escape') { e.preventDefault(); cleanup(null); }
+            };
+
+            errEl.textContent = errorMessage;
+            errEl.classList.toggle('hidden', !errorMessage);
+
+            input.value = '';
+            modal.classList.remove('hidden');
+            requestAnimationFrame(() => input.focus());
+
+            form.addEventListener('submit', onSubmit);
+            document.addEventListener('keydown', onKey);
+            cancel.onclick = () => cleanup(null);
         });
-        
-        if (res.status === 401) {
-            sessionStorage.removeItem('admin_password');
-            alert("密碼錯誤，請重新整理頁面輸入正確密碼！");
-            location.reload();
+    }
+
+    /* ============ 資料載入 ============ */
+    async function loadMessages() {
+        setStatus('loading');
+        listEl.replaceChildren();
+        emptyEl.classList.add('hidden');
+
+        let password = state.password;
+        let isRetry = false;
+
+        for (;;) {
+            if (!password) {
+                const entered = await askPassword(isRetry ? '密碼錯誤，請再試一次。' : '');
+                if (entered === null) {
+                    setStatus('locked', '需要管理密碼才能檢視留言牆。');
+                    return;
+                }
+                password = entered;
+            }
+
+            let res;
+            try {
+                res = await fetch(WORKER_URL, {
+                    headers: { 'X-Admin-Password': password },
+                    cache: 'no-store',
+                });
+            } catch (err) {
+                console.error(err);
+                setStatus('error', '連線失敗，請檢查網路後重試。');
+                return;
+            }
+
+            if (res.status === 401) {
+                password = '';
+                isRetry = true;
+                sessionStorage.removeItem(PWD_KEY);
+                continue;
+            }
+
+            if (!res.ok) {
+                setStatus('error', `讀取失敗（HTTP ${res.status}）。`);
+                return;
+            }
+
+            let data;
+            try {
+                data = await res.json();
+            } catch (err) {
+                console.error(err);
+                setStatus('error', '資料格式異常，請稍後再試。');
+                return;
+            }
+
+            state.password = password;
+            sessionStorage.setItem(PWD_KEY, password);
+            state.messages = Array.isArray(data) ? data.slice().reverse() : [];
+
+            renderAll();
+            setStatus('ready');
             return;
         }
-
-        if (!res.ok) throw new Error('讀取失敗');
-
-        const data = await res.json();
-        messages = data.slice().reverse();
-        renderMessages();
-    } catch (e) {
-        document.getElementById('list').innerHTML = '<div class="text-white">讀取失敗或連線錯誤，請稍後再試。</div>';
-        console.error(e);
-    } finally {
-        document.getElementById('loading').style.display = 'none';
     }
-}
 
-function renderMessages() {
-    const kw = document.getElementById('kw').value.trim().toLowerCase();
-    const ip = document.getElementById('ip').value.trim();
-    const tag = document.getElementById('tag').value.trim().toLowerCase();
-    const code = document.getElementById('code').value.trim();
-    const list = document.getElementById('list');
+    /* ============ 卡片建立 ============ */
+    function infoRow(label, value) {
+        const row = el('div', 'info-row');
+        row.append(
+            el('span', 'info-label', `${label}:`),
+            el('span', 'info-value', value)
+        );
+        return row;
+    }
 
-    list.innerHTML = '';
-    
-    const filtered = messages.filter(item => {
-        if (kw) {
-            const hay = (item.text + ' ' + (item.time || '')).toLowerCase();
-            if (!kw.split(/\s+/).every(k => hay.includes(k))) return false;
+    function buildInfoPanel(item) {
+        const panel = el('div', 'info-panel');
+
+        panel.appendChild(infoRow('來源', `${item.country || '未知'}（${item.as_name || '未知'}）`));
+
+        // IP 列（含查詢連結）
+        const ipRow = el('div', 'info-row');
+        ipRow.append(
+            el('span', 'info-label', 'IP:'),
+            el('span', 'info-value', item.ip || '未知')
+        );
+        if (item.ip) {
+            const link = el('a', '', '查看');
+            link.href = `https://ipinfo.io/${encodeURIComponent(item.ip)}`;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.setAttribute('data-html2canvas-ignore', '');
+            ipRow.appendChild(link);
         }
-        if (ip) { if (!item.ip || item.ip.indexOf(ip) === -1) return false; }
-        if (tag) { if (!item.tag || item.tag.toLowerCase().indexOf(tag) === -1) return false; }
-        if (code) {
-            if (!item.code || item.code.indexOf(code) === -1) return false;
+        panel.appendChild(ipRow);
+
+        panel.appendChild(infoRow('辨識碼', item.tag || '無'));
+        panel.appendChild(infoRow('User-Agent', item.userAgent || '未知'));
+
+        return panel;
+    }
+
+    function createCard(item, index) {
+        const text = item.text || '';
+        const fs = getDynamicFontSize(text);
+
+        const wrapper = el('div', 'card-wrapper');
+        wrapper.dataset.index = String(index);
+
+        const card = el('div', 'card');
+
+        // 留言本文
+        const body = el('div', 'flex-1 flex items-center justify-center w-full');
+        const msg = el('div', 'font-bold text-center px-2 tracking-wide msg-text', text);
+        msg.style.fontSize = fs.fontSize;
+        msg.style.lineHeight = fs.lineHeight;
+        body.appendChild(msg);
+
+        // 卡片底部資訊
+        const footer = el('div', 'w-full text-center mt-3 flex flex-col gap-1.5');
+        footer.append(
+            el('div', 'text-sm font-medium tracking-wider shadow-sm-text', item.time || ''),
+            el('div', 'text-xs uppercase tracking-widest scale-95 shadow-sm-text',
+                `愛希匿名問答#${item.code || '這則留言代碼未知'}`)
+        );
+
+        // 下載按鈕
+        const btn = el('button',
+            'download-btn mt-3 w-full py-1.5 bg-white/10 border border-white/20 rounded-xl text-xs font-medium tracking-wide',
+            '下載圖片卡片');
+        btn.type = 'button';
+        btn.setAttribute('data-html2canvas-ignore', '');
+        btn.addEventListener('click', () => exportToImage(wrapper, item, btn));
+
+        card.append(body, footer, btn);
+        wrapper.append(card, buildInfoPanel(item));
+
+        return wrapper;
+    }
+
+    /* ============ 渲染 ============ */
+    function renderAll() {
+        listEl.replaceChildren();
+        state.cards = [];
+
+        const fragment = document.createDocumentFragment();
+        state.messages.forEach((item, index) => {
+            const cardEl = createCard(item, index);
+            fragment.appendChild(cardEl);
+            state.cards.push({ el: cardEl, item });
+        });
+
+        listEl.appendChild(fragment);
+        applyFilters();
+    }
+
+    function matchItem(item, f) {
+        if (f.kw) {
+            const hay = `${item.text || ''} ${item.time || ''}`.toLowerCase();
+            if (!f.kw.split(/\s+/).every((k) => hay.includes(k))) return false;
         }
+        if (f.ip && (!item.ip || item.ip.indexOf(f.ip) === -1)) return false;
+        if (f.tag && (!item.tag || item.tag.toLowerCase().indexOf(f.tag) === -1)) return false;
+        if (f.code && (!item.code || item.code.indexOf(f.code) === -1)) return false;
         return true;
-    });
-    
-    if (filtered.length === 0) {
-        list.innerHTML = '<div class="text-white">沒有符合條件的留言。</div>';
-        return;
     }
-    
-    filtered.forEach(item => {
-        const fontStyle = getDynamicFontSize(item.text);
-        const wrapper = document.createElement('div');
-        wrapper.className = "card-wrapper";
-        wrapper.innerHTML = `
-            <div class="card shadow-sm">
-                <div class="flex-1 flex items-center justify-center w-full">
-                    <div class="font-bold text-center px-2 tracking-wide msg-text" style="font-size: ${fontStyle.fontSize} !important; line-height: ${fontStyle.lineHeight} !important;" data-text-len="${item.text.length}">
-                        ${escapeHtml(item.text)}
-                    </div>
-                </div>
-                <div class="w-full text-center mt-3 flex flex-col gap-1.5">
-                    <div class="text-sm font-medium tracking-wider shadow-sm-text">${escapeHtml(item.time || '')}</div>
-                    <div class="text-xs uppercase tracking-widest scale-95 shadow-sm-text">愛希匿名問答#${escapeHtml(item.code || '這則留言代碼未知')}</div>
-                </div>
-                <button class="download-btn mt-3 w-full py-1.5 bg-white/10 hover:bg-blue-500 hover:text-white border border-white/20 hover:border-transparent rounded-xl text-xs font-medium tracking-wide transition-all duration-200 data-html2canvas-ignore">
-                    下載圖片卡片
-                </button>
-            </div>
-            <div class="info-panel">
-                <div class="info-row"><span class="info-label">來源:</span>${escapeHtml(item.country || '未知')} (${escapeHtml(item.as_name || '未知')})</div>
-                <div class="info-row">
-                    <span class="info-label">IP:</span>${escapeHtml(item.ip || '未知')}
-                    ${item.ip? `<a href="https://ipinfo.io/${encodeURIComponent(item.ip)}" target="_blank" class="text-blue-400 underline ml-1 hover:text-blue-300 data-html2canvas-ignore">查看</a>` : ''}
-                </div>
-                <div class="info-row"><span class="info-label">🏷 辨識碼:</span>${escapeHtml(item.tag || '無')}</div>
-                <div class="info-row"><span class="info-label">User-Agent:</span>${escapeHtml(item.userAgent || '未知')}</div>
-            </div>
-        `;
-        list.appendChild(wrapper);
-        const downloadBtn = wrapper.querySelector('.download-btn');
-        downloadBtn.addEventListener('click', () => exportToImage(wrapper, item.text));
+
+    function applyFilters() {
+        const f = {
+            kw:   filterEls.kw.value.trim().toLowerCase(),
+            ip:   filterEls.ip.value.trim(),
+            tag:  filterEls.tag.value.trim().toLowerCase(),
+            code: filterEls.code.value.trim(),
+        };
+
+        const total = state.cards.length;
+        let visible = 0;
+
+        for (const { el: cardEl, item } of state.cards) {
+            const ok = matchItem(item, f);
+            cardEl.classList.toggle('is-hidden', !ok);
+            if (ok) visible++;
+        }
+
+        // 統計文字
+        countEl.textContent = total ? `顯示 ${visible} / ${total} 則` : '';
+
+        // 空狀態
+        if (total === 0) {
+            emptyEl.textContent = '目前還沒有任何留言。';
+            emptyEl.classList.remove('hidden');
+        } else if (visible === 0) {
+            emptyEl.textContent = '沒有符合條件的留言。';
+            emptyEl.classList.remove('hidden');
+        } else {
+            emptyEl.classList.add('hidden');
+        }
+    }
+
+    /* ============ 匯出圖片 ============ */
+    async function exportToImage(wrapper, item, btn) {
+        const originalLabel = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = '產生中…';
+
+        const panelExpanded = document.body.classList.contains('show-hidden');
+
+        try {
+            const canvas = await html2canvas(wrapper, {
+                scale: 3,
+                useCORS: true,
+                logging: false,
+                backgroundColor: null,
+                onclone: (doc) => {
+                    const clone = doc.querySelector(
+                        `.card-wrapper[data-index="${wrapper.dataset.index}"]`
+                    );
+                    if (!clone) return;
+
+                    const cloneCard = clone.querySelector('.card');
+                    if (cloneCard) {
+                        cloneCard.style.transform = 'none';
+                        cloneCard.style.boxShadow = 'none';
+                    }
+
+                    const cloneBtn = clone.querySelector('.download-btn');
+                    if (cloneBtn) cloneBtn.style.visibility = 'hidden';
+
+                    if (panelExpanded) {
+                        clone.querySelectorAll('.info-panel').forEach((p) => {
+                            p.style.display = 'flex';
+                        });
+                    }
+                },
+            });
+
+            const suffix = item.code
+                ? `_${String(item.code).replace(/[^\w-]+/g, '')}`
+                : '';
+
+            const link = document.createElement('a');
+            link.download = `匿名留言卡片${suffix}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        } catch (err) {
+            console.error('下載失敗：', err);
+            alert('圖片產生失敗，請稍後再試。');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = originalLabel;
+        }
+    }
+
+    /* ============ 事件綁定 ============ */
+    let filterTimer = null;
+    const scheduleFilter = () => {
+        clearTimeout(filterTimer);
+        filterTimer = setTimeout(applyFilters, 250);
+    };
+
+    Object.values(filterEls).forEach((input) => {
+        input.addEventListener('input', scheduleFilter);
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                clearTimeout(filterTimer);
+                applyFilters();
+            }
+        });
     });
-}
 
-function escapeHtml(s) {
-    if (!s && s !== 0) return '';
-    return String(s)
-       .replace(/&/g, '&amp;')
-       .replace(/</g, '&lt;')
-       .replace(/>/g, '&gt;')
-       .replace(/"/g, '&quot;')
-       .replace(/'/g, '&#39;');
-}
+    $('apply').addEventListener('click', applyFilters);
 
-document.getElementById('apply').addEventListener('click', () => renderMessages());
-document.getElementById('clear').addEventListener('click', () => {
-    document.getElementById('kw').value = '';
-    document.getElementById('ip').value = '';
-    document.getElementById('tag').value = '';
-    document.getElementById('code').value = '';
-    renderMessages();
-});
-['kw', 'ip', 'tag', 'code'].forEach(id => {
-    document.getElementById(id).addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') renderMessages();
+    $('clear').addEventListener('click', () => {
+        Object.values(filterEls).forEach((input) => { input.value = ''; });
+        applyFilters();
     });
-});
 
-const showHiddenCheckbox = document.getElementById('showHidden');
-if (showHiddenCheckbox) {
-    showHiddenCheckbox.addEventListener('change', (e) => {
+    showHiddenEl.addEventListener('change', (e) => {
         document.body.classList.toggle('show-hidden', e.target.checked);
     });
-}
 
-function exportToImage(wrapperElement, textContent) {
-    const cardElement = wrapperElement.querySelector('.card');
-    const downloadBtn = cardElement.querySelector('.download-btn');
-    const showHiddenCheckbox = document.getElementById('showHidden');
-    const isShowingHidden = showHiddenCheckbox && showHiddenCheckbox.checked;
-    
-    if (downloadBtn) downloadBtn.style.visibility = 'hidden';
-    
-    const allWrappers = Array.from(document.querySelectorAll('.card-wrapper'));
-    const wrapperIndex = allWrappers.indexOf(wrapperElement);
-    
-    const fontStyle = getDynamicFontSize(textContent);
+    $('reload').addEventListener('click', loadMessages);
 
-    html2canvas(wrapperElement, {
-        scale: 3,
-        useCORS: true,
-        logging: false,
-        backgroundColor: null,
-        onclone: (clonedDocument) => {
-            const clonedWrappers = clonedDocument.querySelectorAll('.card-wrapper');
-            const clonedWrapper = clonedWrappers[wrapperIndex];
-            if (!clonedWrapper) return;
-            
-            const clonedCard = clonedWrapper.querySelector('.card');
-            const clonedPanel = clonedWrapper.querySelector('.info-panel');
-            
-            if (clonedCard) {
-                const clonedBtn = clonedCard.querySelector('.download-btn');
-                if (clonedBtn) clonedBtn.style.visibility = 'hidden';
-                clonedCard.style.transform = 'none';
-                clonedCard.style.boxShadow = 'none';
-                
-                const msgText = clonedCard.querySelector('.msg-text');
-                if (msgText) {
-                    msgText.style.setProperty('font-size', fontStyle.fontSize, 'important');
-                    msgText.style.setProperty('line-height', fontStyle.lineHeight, 'important');
-                }
-            }
-            
-            if (clonedPanel) {
-                if (isShowingHidden) {
-                    clonedPanel.style.setProperty('display', 'flex', 'important');
-                } else {
-                    clonedPanel.remove();
-                }
-            }
-        }
-    }).then(canvas => {
-        if (downloadBtn) downloadBtn.style.visibility = '';
-        const link = document.createElement('a');
-        link.download = '匿名留言卡片_aiixi.png';
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-    }).catch(err => {
-        if (downloadBtn) downloadBtn.style.visibility = '';
-        console.error('下載失敗：', err);
-    });
-}
-
-loadMessages();
+    /* ============ 啟動 ============ */
+    loadMessages();
+})();
 </script>
 </body>
 </html>

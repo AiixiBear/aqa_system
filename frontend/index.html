@@ -2,303 +2,1484 @@
 <html lang="zh-TW">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#0b1020" />
+  <meta name="description" content="寫下你的問題，按下送出，我會在 Instagram 限動回答你！" />
   <title>匿名問答</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Huninn&family=Zen+Maru+Gothic:wght@500&display=swap">
+
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Huninn&family=Zen+Maru+Gothic:wght@500&display=swap');
     :root{
-      --bg: linear-gradient(135deg,#0f172a 0%, #081124 40%, #0b1020 100%);
-      --card:#0b1220;
+      --bg-1:#0f172a;
+      --bg-2:#081124;
+      --bg-3:#0b1020;
+
       --accent:#ffd166;
+      --accent-2:#00f9d8;
+      --accent-3:#00ffa6;
+      --ink-on-accent:#04231d;
+
+      --text:#ffffff;
       --muted:#9aa6b2;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;min-height:100vh;background:var(--bg);font-family: "Huninn", "Zen Maru Gothic", sans-serif, system-ui, sans-serif;color:white;display:flex;align-items:center;justify-content:center;padding:32px}
-    .wrap{width:100%;max-width:820px}
-    .card{background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.04);border-radius:16px;padding:36px;backdrop-filter: blur(6px);box-shadow:0 8px 30px rgba(2,6,23,0.6)}
+      --danger:#ff6b6b;
 
-    header{display:flex;align-items:center;gap:12px}
-    .logo{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow: hidden;border: 3px solid rgba(255, 255, 255, 0.3);flex-shrink: 0;}
-    h1{margin:0;font-size:28px}
-    p.lead{margin:6px 0 12px;color:var(--muted);font-size:18px}
-
-    textarea{width:100%;min-height:180px;background:transparent;border:1px dashed rgba(255,255,255,0.06);padding:12px;border-radius:8px;color:white;font-size:18px;resize:vertical;font-family: "Huninn", sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue';border: 8px solid rgba(255, 255, 255, 0.3);}
-    
-    /* 字數統計樣式 */
-    .char-count{font-size:18px;color:var(--muted);text-align:right;margin-top:4px}
-    .char-count.exceeded{color:#ff5e5e;font-weight:700}
-
-    .controls{display:flex;gap:12px;margin-top:12px;align-items:center}
-    .btn{background:linear-gradient(90deg,#00f9d8,#00ffa6);border:none;padding:10px 16px;border-radius:12px;font-weight:700;cursor:pointer;box-shadow:0 6px 18px rgba(255,123,123,0.12);transition:transform .12s ease, opacity .12s ease;font-size: 18px;}
-    .btn:active{transform:translateY(2px)}
-    /* 按鈕停用時的 CSS 樣式 */
-    .btn:disabled{opacity:0.4;cursor:not-allowed;transform:none}
-    
-    .secondary{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:10px 12px;border-radius:10px;color:var(--muted);cursor:pointer}
-
-    .toast {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(5, 238, 164, 0.95);
-      padding: 10px 14px;
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: #fff;
-      font-weight: 700;
-      z-index: 9999;
-      font-size: 24px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-      text-align: center;
-      min-width: 30%; /* 設定最小寬度 */
-      max-width: 50%;   /* 設定最大寬度，避免超過螢幕 80% */
-      user-select: text !important;
-    }
-    
-    .fun-area{display:flex;gap:10px;align-items:center;margin-top:14px}
-    .tag{font-size:18px;padding:6px 8px;background:rgba(255,255,255,0.03);border-radius:999px;color:var(--muted);}
-
-    .list{margin-top:18px;display:grid;gap:10px}
-    .item{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.02);font-size:14px}
-    .meta{font-size:12px;color:var(--muted);margin-bottom:6px}
-
-    @keyframes wobble{0%{transform:translateY(0)}50%{transform:translateY(-8px)}100%{transform:translateY(0)}}
-    .wobble{animation:wobble 2s ease-in-out infinite}
-
-    .foot{margin-top:14px;color:var(--muted);font-size:12px}
-
-    @media (max-width:520px){.card{padding:14px}.toast{min-width: 90%;max-width: 97%;}}
-
-    .privacy-box {
-      margin-top: 16px;
-      padding: 12px;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.04);
-      border-radius: 10px;
-      font-size: 16px;
-      color: var(--muted);
-      line-height: 1.6;
+      --line:rgba(255,255,255,.07);
+      --radius:20px;
+      --font: "Huninn", "Zen Maru Gothic", system-ui, -apple-system, "Segoe UI",
+              Roboto, "Helvetica Neue", "PingFang TC", "Microsoft JhengHei", sans-serif;
     }
 
-    .privacy-title {
-      font-size: 23px;
-      font-weight: 700;
-      color: #ff0000;
-      margin-bottom: 4px;
+    *{ box-sizing:border-box; }
+    html{ -webkit-text-size-adjust:100%; }
+
+    body{
+      margin:0;
+      min-height:100vh;
+      min-height:100dvh;
+      padding:32px 20px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-family:var(--font);
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      background:
+        radial-gradient(900px 600px at 12% -10%, rgba(0,249,216,.10), transparent 60%),
+        radial-gradient(820px 600px at 92% 112%, rgba(255,209,102,.08), transparent 60%),
+        linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 40%, var(--bg-3) 100%);
+      background-attachment:fixed;
     }
 
-    .privacy-list {
-      margin: 0;
-      padding-left: 18px;
+    body.is-loading{ overflow:hidden; }
+
+    .wrap{ width:100%; max-width:820px; }
+
+    .card{
+      padding:34px;
+      border-radius:var(--radius);
+      border:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.015));
+      backdrop-filter:blur(12px);
+      -webkit-backdrop-filter:blur(12px);
+      box-shadow:
+        0 24px 60px rgba(2,6,23,.65),
+        inset 0 1px 0 rgba(255,255,255,.05);
     }
 
-    .privacy-list li {
-      margin-bottom: 2px;
+    /* ---------- Header ---------- */
+    header{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      flex-wrap:wrap;
     }
-    b {
-      color: #00e1ff;
+
+    .logo{
+      flex:0 0 auto;
+      width:64px; height:64px;
+      border-radius:50%;
+      overflow:hidden;
+      display:flex; align-items:center; justify-content:center;
+      background:rgba(255,255,255,.04);
+      border:2px solid rgba(255,255,255,.18);
+      box-shadow:0 0 0 4px rgba(0,249,216,.06), 0 8px 20px rgba(0,0,0,.4);
+    }
+    .logo img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+    .header-text{ min-width:0; flex:1 1 auto; }
+
+    h1{
+      margin:0;
+      font-size:clamp(22px, 4.5vw, 28px);
+      line-height:1.25;
+      letter-spacing:.5px;
+    }
+
+    p.lead{
+      margin:6px 0 0;
+      font-size:clamp(15px, 2.6vw, 18px);
+      line-height:1.55;
+      color:var(--muted);
+    }
+
+    /* ========================================================
+       語言切換器
+       ======================================================== */
+    .lang-switcher{
+      position:relative;
+      flex:0 0 auto;
+    }
+
+    .lang-trigger{
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      padding:9px 13px;
+      font-family:inherit;
+      font-size:14px;
+      font-weight:600;
+      color:var(--text);
+      background:linear-gradient(135deg, rgba(0,249,216,.08), rgba(255,209,102,.06));
+      border:1px solid rgba(255,255,255,.16);
+      border-radius:999px;
+      cursor:pointer;
+      transition:border-color .2s ease, box-shadow .2s ease, background .2s ease;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .lang-trigger:hover{
+      border-color:rgba(0,249,216,.5);
+      box-shadow:0 0 0 3px rgba(0,249,216,.08);
+    }
+    .lang-trigger:focus-visible{
+      outline:2px solid var(--accent-2);
+      outline-offset:2px;
+    }
+    .lang-trigger[aria-expanded="true"]{
+      border-color:var(--accent-2);
+      box-shadow:0 0 0 3px rgba(0,249,216,.15);
+    }
+    .lang-trigger .lang-globe{
+      color:var(--accent-2);
+      flex:0 0 auto;
+    }
+    .lang-trigger .lang-chevron{
+      color:var(--muted);
+      transition:transform .2s ease;
+      flex:0 0 auto;
+    }
+    .lang-trigger[aria-expanded="true"] .lang-chevron{
+      transform:rotate(180deg);
+    }
+    .lang-trigger #lang-current{
+      white-space:nowrap;
+    }
+
+    .lang-menu{
+      position:absolute;
+      top:calc(100% + 8px);
+      right:0;
+      z-index:100;
+      min-width:180px;
+      padding:6px;
+      margin:0;
+      list-style:none;
+      background:rgba(11,18,32,.96);
+      backdrop-filter:blur(20px) saturate(140%);
+      -webkit-backdrop-filter:blur(20px) saturate(140%);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:14px;
+      box-shadow:0 20px 50px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.05);
+      opacity:0;
+      visibility:hidden;
+      transform:translateY(-6px);
+      transition:opacity .18s ease, transform .18s ease, visibility .18s ease;
+    }
+    .lang-switcher.open .lang-menu{
+      opacity:1;
+      visibility:visible;
+      transform:translateY(0);
+    }
+
+    .lang-menu li{
+      position:relative;
+      padding:9px 32px 9px 14px;
+      border-radius:8px;
+      font-size:14px;
+      font-weight:500;
+      color:var(--text);
+      cursor:pointer;
+      transition:background .15s ease, color .15s ease;
+    }
+    .lang-menu li:hover{ background:rgba(255,255,255,.06); }
+    .lang-menu li[aria-selected="true"]{
+      background:rgba(0,249,216,.12);
+      color:var(--accent-2);
+      font-weight:700;
+    }
+    .lang-menu li[aria-selected="true"]::after{
+      content:"✓";
+      position:absolute;
+      right:14px;
+      top:50%;
+      transform:translateY(-50%);
+      font-weight:700;
+    }
+
+    /* ========================================================
+       語言提示條
+       ======================================================== */
+    .lang-hint{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-top:16px;
+      padding:12px 14px;
+      font-size:14px;
+      line-height:1.5;
+      color:var(--text);
+      background:linear-gradient(90deg, rgba(0,249,216,.1), rgba(255,209,102,.06));
+      border:1px solid rgba(0,249,216,.25);
+      border-radius:12px;
+    }
+    .lang-hint[hidden]{ display:none; }
+
+    .lang-hint-icon{ font-size:16px; flex:0 0 auto; }
+    .lang-hint-text{ flex:1 1 auto; min-width:0; }
+
+    .lang-hint-actions{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      flex:0 0 auto;
+    }
+
+    .lang-hint-btn{
+      font-family:inherit;
+      font-size:13px;
+      font-weight:700;
+      cursor:pointer;
+      border-radius:8px;
+      border:none;
+      padding:6px 12px;
+      transition:opacity .15s ease, background .15s ease, filter .15s ease;
+    }
+
+    .lang-hint-switch{
+      color:var(--ink-on-accent);
+      background:linear-gradient(90deg, var(--accent-2), var(--accent-3));
+      box-shadow:0 4px 12px rgba(0,249,216,.2);
+    }
+    .lang-hint-switch:hover{ filter:brightness(1.06); }
+    .lang-hint-switch[hidden]{ display:none; }
+
+    .lang-hint-dismiss{
+      color:var(--muted);
+      background:transparent;
+      padding:6px 8px;
+      font-size:14px;
+    }
+    .lang-hint-dismiss:hover{ color:var(--text); }
+
+    /* ---------- 輸入區 ---------- */
+    .field{ margin-top:20px; }
+
+    textarea{
+      display:block;
+      width:100%;
+      min-height:180px;
+      padding:14px 16px;
+      font-family:inherit;
+      font-size:18px;
+      line-height:1.6;
+      color:var(--text);
+      background:rgba(0,0,0,.25);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:12px;
+      resize:vertical;
+      outline:none;
+      transition:border-color .2s ease, box-shadow .2s ease, background .2s ease, opacity .2s ease;
+    }
+    textarea::placeholder{ color:rgba(154,166,178,.72); }
+    textarea:hover{ border-color:rgba(255,255,255,.2); }
+    textarea:focus{
+      background:rgba(0,0,0,.35);
+      border-color:rgba(0,249,216,.55);
+      box-shadow:0 0 0 4px rgba(0,249,216,.12);
+    }
+    textarea.is-locked{ opacity:.55; cursor:not-allowed; }
+
+    .field-meta{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-top:6px;
+      font-size:13px;
+      color:var(--muted);
+    }
+
+    .shortcut-hint{
+      color:rgba(154,166,178,.7);
+      letter-spacing:.3px;
+      white-space:nowrap;
+    }
+
+    .char-count{
+      font-size:16px;
+      color:var(--muted);
+      font-variant-numeric:tabular-nums;
+      transition:color .2s ease;
+      white-space:nowrap;
+    }
+    .char-count.exceeded{ color:var(--danger); font-weight:700; }
+
+    .turnstile-slot{ margin-top:12px; }
+
+    .turnstile-error{
+      margin:8px 0 0;
+      padding:8px 12px;
+      font-size:13px;
+      line-height:1.5;
+      color:#ffb3b3;
+      background:rgba(255,107,107,.08);
+      border:1px solid rgba(255,130,130,.25);
+      border-radius:8px;
+    }
+
+    /* ---------- 按鈕 ---------- */
+    .controls{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top:14px;
+    }
+
+    .btn{
+      padding:12px 22px;
+      font-family:inherit;
+      font-size:18px;
+      font-weight:700;
+      color:var(--ink-on-accent);
+      background:linear-gradient(90deg, var(--accent-2), var(--accent-3));
+      border:none;
+      border-radius:12px;
+      cursor:pointer;
+      box-shadow:0 8px 20px rgba(0,249,216,.18);
+      transition:filter .2s ease, box-shadow .2s ease, opacity .2s ease, transform .08s ease;
+    }
+    .btn:hover:not(:disabled){
+      filter:brightness(1.08) saturate(1.05);
+      box-shadow:0 10px 24px rgba(0,249,216,.26);
+    }
+    .btn:active:not(:disabled){
+      transform:scale(0.98);
+    }
+    .btn:focus-visible{ outline:2px solid var(--accent); outline-offset:3px; }
+    .btn:disabled{ opacity:.4; cursor:not-allowed; box-shadow:none; }
+
+    .secondary{
+      padding:10px 14px;
+      font-family:inherit;
+      font-size:16px;
+      color:var(--muted);
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:10px;
+      cursor:pointer;
+      transition:background .2s ease, color .2s ease, border-color .2s ease;
+    }
+    .secondary:hover{ color:var(--text); background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.2); }
+    .secondary:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+
+    /* ---------- 標籤 / 代碼 ---------- */
+    .fun-area{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:14px;
+    }
+
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:6px 12px;
+      font-size:16px;
+      color:var(--muted);
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:999px;
+    }
+
+    .tag code{
+      font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size:15px;
+      font-weight:700;
+      color:var(--accent);
+      word-break:break-all;
+      padding:1px 4px;
+      border-radius:4px;
+    }
+
+    @keyframes code-pop {
+      0%   { background:rgba(0,249,216,.28); }
+      100% { background:transparent; }
+    }
+    #user-code.code-highlight{
+      animation: code-pop 1.3s ease-out;
+    }
+
+    .chip{
+      min-width:60px;
+      padding:3px 10px;
+      font-size:14px;
+      border-radius:999px;
+    }
+    .chip.is-copied{
+      color:var(--ink-on-accent);
+      background:rgba(0,249,216,.85);
+      border-color:rgba(0,249,216,.85);
+    }
+
+    /* ---------- 頁腳 ---------- */
+    .foot{
+      margin-top:16px;
+      font-size:13px;
+      color:rgba(154,166,178,.75);
+    }
+
+    /* ---------- 隱私權聲明 ---------- */
+    .privacy-box{
+      margin-top:22px;
+      padding:18px 20px 20px;
+      font-size:15px;
+      line-height:1.85;
+      color:var(--muted);
+      background:
+        linear-gradient(180deg, rgba(255,120,120,.035), rgba(255,255,255,.015));
+      border:1px solid var(--line);
+      border-left:3px solid rgba(255,130,130,.55);
+      border-radius:12px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
+    }
+
+    .privacy-header{ margin-bottom:10px; }
+
+    .privacy-title{
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      padding:4px 12px 4px 10px;
+      font-size:13px;
+      font-weight:700;
+      letter-spacing:.8px;
+      color:#ffb3b3;
+      background:rgba(255,107,107,.1);
+      border:1px solid rgba(255,130,130,.28);
+      border-radius:999px;
+    }
+    .privacy-title svg{
+      width:14px;
+      height:14px;
+      flex:0 0 auto;
+      color:#ff8f8f;
+    }
+
+    .privacy-list{
+      margin:0;
+      padding-left:20px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .privacy-list li{
+      padding-left:2px;
+      line-height:1.8;
+    }
+    .privacy-list li::marker{ color:rgba(255,209,102,.75); font-weight:700; }
+
+    b{ color:#3ee0ff; }
+
+    /* ---------- Toast ---------- */
+    .toast{
+      position:fixed;
+      top:50%;
+      left:50%;
+      z-index:10000;
+      padding:16px 22px;
+      min-width:min(320px, 80vw);
+      max-width:min(90vw, 560px);
+      font-size:clamp(16px, 4vw, 22px);
+      font-weight:700;
+      line-height:1.5;
+      text-align:center;
+      color:var(--ink-on-accent);
+      background:rgba(5,238,164,.96);
+      border:1px solid rgba(255,255,255,.25);
+      border-radius:14px;
+      box-shadow:0 16px 40px rgba(0,0,0,.55);
+      user-select:text;
+      opacity:0;
+      transform:translate(-50%,-50%) scale(.94);
+      transition:opacity .2s ease, transform .2s ease;
+    }
+    .toast.show{
+      opacity:1;
+      transform:translate(-50%,-50%) scale(1);
+    }
+    .toast--error{ background:rgba(255,107,107,.97); color:#2a0000; }
+    .toast--info{ background:rgba(255,209,102,.97); color:#2a1e00; }
+
+    /* ======================================================
+       送出中提示畫面
+       ====================================================== */
+    .loading-overlay{
+      position:fixed;
+      inset:0;
+      z-index:9998;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:
+        max(24px, env(safe-area-inset-top))
+        max(24px, env(safe-area-inset-right))
+        max(24px, env(safe-area-inset-bottom))
+        max(24px, env(safe-area-inset-left));
+      background:
+        radial-gradient(circle at 50% 45%, rgba(0,249,216,.05), transparent 55%),
+        rgba(8, 17, 36, .75);
+      opacity:0;
+      visibility:hidden;
+      pointer-events:none;
+      transition:opacity .25s ease, visibility .25s ease;
+    }
+    .loading-overlay.active{
+      opacity:1;
+      visibility:visible;
+      pointer-events:auto;
+    }
+
+    .loading-card{
+      position:relative;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:14px;
+      padding:32px 40px;
+      width:100%;
+      max-width:340px;
+      text-align:center;
+      border-radius:20px;
+      border:1px solid transparent;
+      background:
+        linear-gradient(rgba(11,18,32,.55), rgba(11,18,32,.55)) padding-box,
+        linear-gradient(
+          135deg,
+          rgba(0, 249, 216, .55) 0%,
+          rgba(0, 255, 166, .12) 35%,
+          rgba(255, 255, 255, .06) 55%,
+          rgba(255, 209, 102, .12) 80%,
+          rgba(255, 209, 102, .55) 100%
+        ) border-box;
+      backdrop-filter:blur(20px) saturate(140%);
+      -webkit-backdrop-filter:blur(20px) saturate(140%);
+      box-shadow:0 24px 60px rgba(0,0,0,.55);
+    }
+
+    .loading-icon{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:48px;
+      height:48px;
+      border-radius:50%;
+      background:radial-gradient(circle at 30% 30%, rgba(0,249,216,.22), rgba(0,249,216,.05));
+      border:1px solid rgba(0,249,216,.3);
+      color:#00f9d8;
+      box-shadow:0 0 20px rgba(0,249,216,.12);
+    }
+    .loading-icon svg{ display:block; }
+
+    .loading-text{
+      display:inline-flex;
+      align-items:baseline;
+      gap:4px;
+      font-size:19px;
+      font-weight:700;
+      letter-spacing:2px;
+      color:#fff;
+    }
+    .loading-text .dots{
+      display:inline-block;
+      font-size:22px;
+      line-height:1;
+      letter-spacing:1px;
+      color:#00f9d8;
+      transform:translateY(1px);
+    }
+
+    .loading-sub{
+      margin:0;
+      font-size:13px;
+      line-height:1.6;
+      color:var(--muted);
+      letter-spacing:.5px;
+    }
+
+    /* ---------- 響應式 ---------- */
+    @media (max-width:520px){
+      body{ padding:16px; }
+      .card{ padding:20px; border-radius:16px; }
+      textarea{ min-height:150px; font-size:16px; }
+      .controls .btn{ flex:1 1 100%; }
+      .tag{ font-size:15px; }
+      .loading-card{ padding:26px 28px; gap:12px; border-radius:18px; }
+      .loading-icon{ width:42px; height:42px; }
+      .loading-text{ font-size:17px; letter-spacing:1.5px; }
+      .loading-sub{ font-size:12px; }
+
+      .lang-switcher{
+        flex-basis:100%;
+        display:flex;
+        justify-content:flex-end;
+        margin-top:4px;
+      }
+      .lang-trigger{
+        padding:7px 11px;
+        font-size:13px;
+        gap:6px;
+      }
+      .lang-hint{
+        flex-wrap:wrap;
+        font-size:13px;
+        padding:10px 12px;
+      }
+      .lang-hint-actions{ margin-left:auto; }
+
+      .privacy-box{ padding:14px 14px 16px; font-size:14px; }
+      .privacy-list{ gap:8px; }
+    }
+
+    @media (hover: none) and (pointer: coarse){
+      .shortcut-hint{ display:none; }
+      .field-meta{ justify-content:flex-end; }
+    }
+
+    @media (prefers-reduced-motion:reduce){
+      *,*::before,*::after{
+        transition-duration:.001ms !important;
+      }
+      #user-code.code-highlight{ animation:none; }
     }
   </style>
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-KVWSWF23F9"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-KVWSWF23F9');
+  </script>
+
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
+
 <body>
-  <div class="wrap">
-    <div class="card">
+  <main class="wrap">
+    <section class="card">
       <header>
-        <div class="logo"><img src="YOUR_ICON_URL_HERE" height="64" width="64"></div>
-        <div>
-          <h1>匿名問答</h1>
-          <p class="lead">在下方寫下你的問題之類的？？然後按下送出即可！！</p>
+        <div class="logo">
+          <img src="YOUR_ICON_URL_HERE" alt="Logo" width="64" height="64">
+        </div>
+        <div class="header-text">
+          <h1 data-i18n="title">愛希的匿名問答</h1>
+          <p class="lead" data-i18n="subtitle">在下方寫下你的問題之類的？？然後按下送出即可！！</p>
+        </div>
+
+        <div class="lang-switcher" id="lang-switcher">
+          <button type="button" class="lang-trigger" id="lang-trigger"
+                  aria-haspopup="listbox" aria-expanded="false"
+                  aria-label="Switch language">
+            <svg class="lang-globe" width="16" height="16" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="2" y1="12" x2="22" y2="12"/>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+            <span id="lang-current">繁體中文</span>
+            <svg class="lang-chevron" width="14" height="14" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+          <ul class="lang-menu" id="lang-menu" role="listbox" aria-label="Language">
+            <li role="option" data-lang="zh-Hant" aria-selected="true">繁體中文</li>
+            <li role="option" data-lang="zh-Hans" aria-selected="false">简体中文</li>
+            <li role="option" data-lang="en"      aria-selected="false">English</li>
+            <li role="option" data-lang="ja"      aria-selected="false">日本語</li>
+          </ul>
         </div>
       </header>
 
-      <div style="margin-top:12px">
-        <textarea id="text" placeholder="請在此輸入你想說的話！（最多100字）"></textarea>
-        <div id="char-count" class="char-count">0 / 100</div>
-        <div class="cf-turnstile" data-sitekey="YOUR_TURNSTILE_SITE_KEY_HERE" style="margin-top:12px"></div>
-
-        <div class="controls">
-          <button id="send" class="btn" disabled>🚀 按這裡送出！！！</button>
-          <button id="clear" class="secondary">清空</button>
-        </div>
-
-        <div class="fun-area">
-          <div style="margin-left:8px" class="tag">防刷冷卻：<span id="cooldown">0s</span></div>
-        </div>
-        <div class="fun-area">
-          <div class="tag" style="display:flex;align-items:center;gap:6px">
-            <b>留言專屬代碼</b>：<code id="user-code" style="color:var(--accent);font-weight:700">尚未生成</code>
-            <button id="copy-code-btn" class="secondary" style="padding:2px 8px;font-size:17px;cursor:pointer">複製</button>
-          </div>
-        </div>
-        <div class="foot">
-          <div>2025/10/05 Aiixi Bear 製作 | <a href="https://github.com/AiixiBear/aqa_system/">查看 GitHub 原始碼</a></div>
-        </div>
-        <!-- 隱私權聲明 -->
-        <div class="privacy-box">
-          <div class="privacy-title">事先聲明！</div>
-          <ul class="privacy-list">
-            <li><b>留言專屬代碼</b>：會在送出留言後生成，此代碼可以保存起來，因為它用於辨識你自己的留言。</li>
-            <li>你的留言會被公開展示在我的 Instagram 限動，所以<b>請勿在留言中留下個人的敏感資料。</b></li>
-            <li>在你送出留言時，本系統會一併紀錄你的裝置資訊（例如：IP地址、瀏覽器資訊），這些資訊僅供統計使用，<b>我絕對不會、也無法透過這些資訊猜測出你是誰，也不會將這些資訊分享給第三方或公開展示，請安心送出。</b></li>
-            <li><b>請勿發布任何違法、色情、暴力、政治、未經查證的訊息或攻擊性言論。</b></li>
-
-          </ul>
+      <div class="lang-hint" id="lang-hint" hidden>
+        <span class="lang-hint-icon" aria-hidden="true">🌐</span>
+        <span class="lang-hint-text" id="lang-hint-text"></span>
+        <div class="lang-hint-actions">
+          <button type="button" class="lang-hint-btn lang-hint-switch" id="lang-hint-switch"></button>
+          <button type="button" class="lang-hint-btn lang-hint-dismiss" id="lang-hint-dismiss"
+                  aria-label="關閉">✕</button>
         </div>
       </div>
+
+      <div class="field">
+        <label for="text" hidden>Message</label>
+        <textarea
+          id="text"
+          maxlength="500"
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
+          data-i18n-placeholder="placeholder"
+          placeholder="請在此輸入你想說的話⋯"></textarea>
+
+        <div class="field-meta">
+          <span class="shortcut-hint" data-i18n="shortcutHint">⌘ / Ctrl + Enter 送出</span>
+          <span id="char-count" class="char-count" aria-live="polite">0 / 100</span>
+        </div>
+
+        <div class="turnstile-slot">
+          <div class="cf-turnstile" data-sitekey="YOUR_TURNSTILE_SITE_KEY_HERE"></div>
+        </div>
+
+        <div class="controls">
+          <button id="send" class="btn" type="button" disabled data-i18n="btnIdle">🚀 按這裡送出！！！</button>
+          <button id="clear" class="secondary" type="button" data-i18n="btnClear">清空</button>
+        </div>
+
+        <div class="fun-area">
+          <div class="tag">
+            <span data-i18n="cooldownLabel">防刷冷卻：</span>
+            <span id="cooldown">0s</span>
+          </div>
+
+          <div class="tag">
+            <b data-i18n="codeLabel">留言專屬代碼</b>
+            <code id="user-code" data-state="empty">尚未生成</code>
+            <button id="copy-code-btn" class="secondary chip" type="button" data-i18n="copy" title="Copy code">複製</button>
+          </div>
+        </div>
+
+        <div class="foot" data-i18n="foot">2025/10/05 製作</div>
+
+        <aside class="privacy-box">
+          <div class="privacy-header">
+            <span class="privacy-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <span data-i18n="privacyTitle">事先聲明！</span>
+            </span>
+          </div>
+          <ul class="privacy-list">
+            <li data-i18n-html="privacyItem1"><b>留言專屬代碼</b>：會在送出留言後生成，此代碼可以保存起來，因為它用於辨識你自己的留言。</li>
+            <li data-i18n-html="privacyItem2">你的留言會被公開展示在我的 Instagram 限動，所以<b>請勿在留言中留下個人的敏感資料。</b></li>
+            <li data-i18n-html="privacyItem3">在你送出留言時，本系統會一併紀錄你的裝置資訊（例如：IP 地址、瀏覽器資訊），這些資訊僅供統計使用，<b>我絕對不會、也無法透過這些資訊猜測出你是誰，也不會將這些資訊分享給第三方或公開展示，請安心送出。</b></li>
+            <li data-i18n-html="privacyItem4"><b>請勿發布任何違法、色情、暴力、政治、未經查證的訊息或攻擊性言論。</b></li>
+          </ul>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <div class="loading-overlay" id="loading-overlay" role="status" aria-live="polite" aria-hidden="true">
+    <div class="loading-card">
+      <div class="loading-icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+      </div>
+      <div class="loading-text">
+        <span data-i18n="loadingTitle">送出中</span><span class="dots" aria-hidden="true">⋯</span>
+      </div>
+      <p class="loading-sub" data-i18n="loadingSub">請待在這個頁面，等我一下下就好</p>
     </div>
   </div>
 
-
   <script>
-    const WORKER_URL = 'YOUR_WORKER_URL_HERE';
+  (() => {
+    'use strict';
 
-    const elText = document.getElementById('text');
-    const btn = document.getElementById('send');
-    const clear = document.getElementById('clear');
-    const cooldownEl = document.getElementById('cooldown');
-    const charCountEl = document.getElementById('char-count');
-    const userCodeEl = document.getElementById('user-code');
-    const copyCodeBtn = document.getElementById('copy-code-btn');
+    const LANG_NAMES = {
+      'zh-Hant': '繁體中文',
+      'zh-Hans': '简体中文',
+      'en':      'English',
+      'ja':      '日本語',
+    };
 
-    let cooldown = 0; // 秒
-    let cooldownTimer = null;
-    let isSubmitting = false;
+    const LANG_HINT_TEXT = {
+      'zh-Hant': '偵測到瀏覽器偏好「繁體中文」，要切換嗎？',
+      'zh-Hans': '检测到浏览器偏好「简体中文」，要切换吗？',
+      'en':      'Your browser prefers English. Switch?',
+      'ja':      'ブラウザの言語は「日本語」です。切り替えますか？',
+    };
 
-    // 檢查並更新送出按鈕狀態
-    function updateButtonState() {
-      const txt = elText.value.trim();
-      const len = elText.value.length;
+    const I18N = {
+      'zh-Hant': {
+        title: '愛希的匿名問答',
+        subtitle: '在下方寫下你的問題之類的？？然後按下送出即可！！',
+        placeholder: '請在此輸入你想說的話⋯',
+        shortcutHint: '⌘ / Ctrl + Enter 送出',
+        btnIdle: '🚀 按這裡送出！！！',
+        btnBusy: '傳送中...',
+        btnClear: '清空',
+        cooldownLabel: '防刷冷卻：',
+        codeLabel: '留言專屬代碼',
+        codeEmpty: '尚未生成',
+        copy: '複製',
+        copied: '已複製 ✓',
+        foot: '2025/10/05 製作',
+        privacyTitle: '事先聲明！',
+        privacyItem1: '<b>留言專屬代碼</b>：會在送出留言後生成，此代碼可以保存起來，因為它用於辨識你自己的留言。',
+        privacyItem2: '你的留言會被公開展示在我的 Instagram 限動，所以<b>請勿在留言中留下個人的敏感資料。</b>',
+        privacyItem3: '在你送出留言時，本系統會一併紀錄你的裝置資訊（例如：IP 地址、瀏覽器資訊），這些資訊僅供統計使用，<b>我絕對不會、也無法透過這些資訊猜測出你是誰，也不會將這些資訊分享給第三方或公開展示，請安心送出。</b>',
+        privacyItem4: '<b>請勿發布任何違法、色情、暴力、政治、未經查證的訊息或攻擊性言論。</b>',
+        loadingTitle: '送出中',
+        loadingSub: '請待在這個頁面，等我一下下就好',
+        langSwitcherAria: '切換語言',
+        turnstileLoadError: '驗證元件載入失敗，請重新整理頁面',
+        toastNoCode: '請先送出留言取得專屬代碼喔！',
+        toastCopied: '留言專屬代碼已複製！可用於辨識你自己的留言～',
+        toastCopyFail: '複製失敗，請手動複製：{code}',
+        toastCleared: '已清空',
+        toastEmpty: '欸？你要送什麼啦！',
+        toastTooLong: '太長惹，請少於 {n} 字',
+        toastCooldown: '冷卻中，再等 {n} 秒啦～',
+        toastTurnstile: '請先通過「我不是機器人」驗證！',
+        toastSuccess: '送出成功！你留言的專屬代碼是：{code}',
+        toastTimeout: '連線逾時，請確認網路後再試一次',
+        toastError: '錯誤：{msg}',
+        unknownCode: '未知代碼',
+      },
+      'zh-Hans': {
+        title: '爱希的匿名问答',
+        subtitle: '在下方写下你的问题之类的？？然后按下送出即可！！',
+        placeholder: '请在此输入你想说的话⋯',
+        shortcutHint: '⌘ / Ctrl + Enter 送出',
+        btnIdle: '🚀 按这里送出！！！',
+        btnBusy: '传送中...',
+        btnClear: '清空',
+        cooldownLabel: '防刷冷却：',
+        codeLabel: '留言专属代码',
+        codeEmpty: '尚未生成',
+        copy: '复制',
+        copied: '已复制 ✓',
+        foot: '2025/10/05 制作',
+        privacyTitle: '事先声明！',
+        privacyItem1: '<b>留言专属代码</b>：会在送出留言后生成，此代码可以保存起来，因为它用于辨识你自己的留言。',
+        privacyItem2: '你的留言会被公开展示在我的 Instagram 限动，所以<b>请勿在留言中留下个人的敏感资料。</b>',
+        privacyItem3: '在你送出留言时，本系统会一并纪录你的装置资讯（例如：IP 地址、浏览器资讯），这些资讯仅供统计使用，<b>我绝对不会、也无法透过这些资讯猜测出你是谁，也不会将这些资讯分享给第三方或公开展示，请安心送出。</b>',
+        privacyItem4: '<b>请勿发布任何违法、色情、暴力、政治、未经查证的讯息或攻击性言论。</b>',
+        loadingTitle: '送出中',
+        loadingSub: '请待在这个页面，等我一下下就好',
+        langSwitcherAria: '切换语言',
+        turnstileLoadError: '验证组件载入失败，请重新整理页面',
+        toastNoCode: '请先送出留言取得专属代码喔！',
+        toastCopied: '留言专属代码已复制！可用于辨识你自己的留言～',
+        toastCopyFail: '复制失败，请手动复制：{code}',
+        toastCleared: '已清空',
+        toastEmpty: '欸？你要送什么啦！',
+        toastTooLong: '太长惹，请少于 {n} 字',
+        toastCooldown: '冷却中，再等 {n} 秒啦～',
+        toastTurnstile: '请先通过「我不是机器人」验证！',
+        toastSuccess: '送出成功！你留言的专属代码是：{code}',
+        toastTimeout: '连线逾时，请确认网路后再试一次',
+        toastError: '错误：{msg}',
+        unknownCode: '未知代码',
+      },
+      'en': {
+        title: "Aiixi's Anonymous Q&A",
+        subtitle: 'Write your question (or anything, really) below, then hit send!',
+        placeholder: 'Type your message here⋯',
+        shortcutHint: '⌘ / Ctrl + Enter to send',
+        btnIdle: '🚀 Send it!',
+        btnBusy: 'Sending...',
+        btnClear: 'Clear',
+        cooldownLabel: 'Cooldown: ',
+        codeLabel: 'Message code',
+        codeEmpty: 'Not generated yet',
+        copy: 'Copy',
+        copied: 'Copied ✓',
+        foot: 'Made on 2025/10/05',
+        privacyTitle: 'Please note!',
+        privacyItem1: '<b>Message code</b>: generated after you send. Save it — it\'s how you identify your own message later.',
+        privacyItem2: 'Your message will be publicly shown on my Instagram Stories, so <b>please do not include any sensitive personal information.</b>',
+        privacyItem3: 'When you submit, the system records basic device info (IP address, browser, etc.) for analytics only. <b>I will never try to identify you or share this data with any third party.</b>',
+        privacyItem4: '<b>Please do not post anything illegal, sexual, violent, political, unverified, or offensive.</b>',
+        loadingTitle: 'Sending',
+        loadingSub: 'Please stay on this page for just a moment',
+        langSwitcherAria: 'Switch language',
+        turnstileLoadError: 'Verification widget failed to load. Please refresh the page.',
+        toastNoCode: 'Please send a message first to get your code!',
+        toastCopied: 'Message code copied! Use it to identify your own message.',
+        toastCopyFail: 'Copy failed, please copy manually: {code}',
+        toastCleared: 'Cleared',
+        toastEmpty: 'Hey, what are you trying to send?',
+        toastTooLong: 'Too long — please keep it under {n} characters',
+        toastCooldown: 'On cooldown, please wait {n} more seconds',
+        toastTurnstile: 'Please complete the "I\'m not a robot" check first!',
+        toastSuccess: 'Sent! Your message code is: {code}',
+        toastTimeout: 'Request timed out. Please check your network and try again.',
+        toastError: 'Error: {msg}',
+        unknownCode: 'Unknown code',
+      },
+      'ja': {
+        title: '愛希の匿名Q&A',
+        subtitle: '下に質問などを書いて、送信ボタンを押してください！！',
+        placeholder: 'ここにメッセージを入力してください⋯',
+        shortcutHint: '⌘ / Ctrl + Enter で送信',
+        btnIdle: '🚀 送信する！',
+        btnBusy: '送信中...',
+        btnClear: 'クリア',
+        cooldownLabel: 'クールダウン：',
+        codeLabel: 'メッセージ専用コード',
+        codeEmpty: 'まだ生成されていません',
+        copy: 'コピー',
+        copied: 'コピーしました ✓',
+        foot: '2025/10/05 制作',
+        privacyTitle: 'はじめに！',
+        privacyItem1: '<b>メッセージ専用コード</b>：送信後に生成されます。ご自身のメッセージを識別するためのコードなので、保存しておいてください。',
+        privacyItem2: 'メッセージは私の Instagram ストーリーズで公開されます。<b>個人情報などの機密情報は書かないでください。</b>',
+        privacyItem3: '送信時に端末情報（IP アドレス、ブラウザ情報など）が記録されますが、これは統計目的のみに使用します。<b>個人を特定したり、第三者と共有したりすることは絶対にありません。</b>',
+        privacyItem4: '<b>違法、性的、暴力的、政治的、未確認の情報、または攻撃的な言論は投稿しないでください。</b>',
+        loadingTitle: '送信中',
+        loadingSub: 'このページで少しお待ちください',
+        langSwitcherAria: '言語を切り替え',
+        turnstileLoadError: '認証ウィジェットの読み込みに失敗しました。ページを再読み込みしてください。',
+        toastNoCode: '先にメッセージを送信してコードを取得してください！',
+        toastCopied: 'メッセージ専用コードをコピーしました！ご自身のメッセージの識別に使えます。',
+        toastCopyFail: 'コピーに失敗しました。手動でコピーしてください：{code}',
+        toastCleared: 'クリアしました',
+        toastEmpty: 'え？何を送るんですか？',
+        toastTooLong: '長すぎます。{n} 文字以内にしてください',
+        toastCooldown: 'クールダウン中です。あと {n} 秒お待ちください',
+        toastTurnstile: '「私はロボットではありません」認証を先に完了してください！',
+        toastSuccess: '送信成功！あなたのメッセージ専用コードは：{code}',
+        toastTimeout: '通信がタイムアウトしました。ネットワークを確認して再度お試しください',
+        toastError: 'エラー：{msg}',
+        unknownCode: '不明なコード',
+      },
+    };
 
-      // 當內容空白、字數大於 100 字、處於冷卻中，或是正在傳送資料時，禁用按鈕
-      if (!txt || len > 100 || cooldown > 0 || isSubmitting) {
-        btn.disabled = true;
-      } else {
-        btn.disabled = false;
+    const WORKER_URL        = 'YOUR_WORKER_URL_HERE';
+    const MAX_LEN           = 100;
+    const COOLDOWN_SECONDS  = 8;
+    const SUBMIT_TIMEOUT_MS = 15000;
+    const TOAST_LIFETIME_MS = 3500;
+    const COPY_FEEDBACK_MS  = 1800;
+    const TURNSTILE_CHECK_MS = 10000;  // 延長至 10 秒，更寬容
+
+    const elText       = document.getElementById('text');
+    const btn          = document.getElementById('send');
+    const clearBtn     = document.getElementById('clear');
+    const cooldownEl   = document.getElementById('cooldown');
+    const charCountEl  = document.getElementById('char-count');
+    const userCodeEl   = document.getElementById('user-code');
+    const copyCodeBtn  = document.getElementById('copy-code-btn');
+    const loadingEl    = document.getElementById('loading-overlay');
+
+    const langSwitcher = document.getElementById('lang-switcher');
+    const langTrigger  = document.getElementById('lang-trigger');
+    const langCurrent  = document.getElementById('lang-current');
+    const langMenu     = document.getElementById('lang-menu');
+
+    const langHint        = document.getElementById('lang-hint');
+    const langHintText    = document.getElementById('lang-hint-text');
+    const langHintSwitch  = document.getElementById('lang-hint-switch');
+    const langHintDismiss = document.getElementById('lang-hint-dismiss');
+
+    const turnstileSlot = document.querySelector('.turnstile-slot');
+    const turnstileBox  = document.querySelector('.cf-turnstile');
+
+    let currentLang     = 'zh-Hant';
+    let cooldown        = 0;
+    let cooldownTimer   = null;
+    let isSubmitting    = false;
+    let toastEl         = null;
+    let toastTimer      = null;
+    let copyResetTimer  = null;
+    let hintDismissed   = false;
+    let turnstileErrorShown = false;
+
+    /* ========================================================
+       i18n
+       ======================================================== */
+    function t(key, params) {
+      const dict = I18N[currentLang] || I18N['zh-Hant'];
+      let str = dict[key];
+      if (str == null) str = I18N['zh-Hant'][key] ?? key;
+
+      if (params && typeof str === 'string') {
+        for (const k in params) {
+          str = str.replace(new RegExp('\\{' + k + '\\}', 'g'), params[k]);
+        }
+      }
+      return str;
+    }
+
+    function detectBrowserLang() {
+      const nav = (navigator.language || '').toLowerCase();
+      if (!nav) return null;
+
+      if (nav.startsWith('zh')) {
+        if (nav.includes('hans') || nav.includes('cn') || nav.includes('sg')) return 'zh-Hans';
+        return 'zh-Hant';
+      }
+      if (nav.startsWith('ja')) return 'ja';
+      if (nav.startsWith('en')) return 'en';
+
+      return nav;
+    }
+
+    function getLangDisplayName(code) {
+      if (!code) return '';
+      try {
+        const dn = new Intl.DisplayNames(['en'], { type: 'language' });
+        return dn.of(code.split('-')[0]) || code;
+      } catch {
+        return code;
       }
     }
 
-    // 監聽輸入框事件，更新字數統計與按鈕狀態
-    elText.addEventListener('input', () => {
-      const len = elText.value.length;
-      charCountEl.textContent = `${len} / 100`;
+    function applyLang(lang) {
+      if (!I18N[lang]) lang = 'zh-Hant';
+      currentLang = lang;
 
-      if (len > 100) {
-        charCountEl.classList.add('exceeded');
-      } else {
-        charCountEl.classList.remove('exceeded');
+      document.documentElement.lang = lang;
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        el.textContent = t(el.dataset.i18n);
+      });
+      document.querySelectorAll('[data-i18n-html]').forEach(el => {
+        el.innerHTML = t(el.dataset.i18nHtml);
+      });
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        el.placeholder = t(el.dataset.i18nPlaceholder);
+      });
+
+      if (userCodeEl.dataset.state !== 'generated') {
+        userCodeEl.textContent = t('codeEmpty');
       }
 
-      updateButtonState();
-    });
+      // 同步 Turnstile 錯誤提示文字（如果存在）
+      const tErr = turnstileSlot.querySelector('.turnstile-error');
+      if (tErr) tErr.textContent = t('turnstileLoadError');
 
-    // 簡單防刷（前端）：每次送出後 8 秒內不能再送
-    function startCooldown(s) { 
-      cooldown = s; 
-      cooldownEl.textContent = cooldown + 's';
+      langCurrent.textContent = LANG_NAMES[lang];
+      langMenu.querySelectorAll('li').forEach(li => {
+        li.setAttribute('aria-selected', String(li.dataset.lang === lang));
+      });
+      langTrigger.setAttribute('aria-label', `${t('langSwitcherAria')}: ${LANG_NAMES[lang]}`);
+
+      updateButtonText();
+      updateCopyBtnText();
+      updateCharCount();
+    }
+
+    /* ========================================================
+       UI 狀態
+       ======================================================== */
+    function updateButtonState() {
+      const raw = elText.value;
+      const txt = raw.trim();
+      btn.disabled =
+        !txt ||
+        raw.length > MAX_LEN ||
+        cooldown > 0 ||
+        isSubmitting;
+    }
+
+    function updateButtonText() {
+      btn.textContent = isSubmitting ? t('btnBusy') : t('btnIdle');
+    }
+
+    function updateCopyBtnText() {
+      if (copyCodeBtn.classList.contains('is-copied')) {
+        copyCodeBtn.textContent = t('copied');
+      } else {
+        copyCodeBtn.textContent = t('copy');
+      }
+    }
+
+    function updateCharCount() {
+      const len = elText.value.length;
+      charCountEl.textContent = `${len} / ${MAX_LEN}`;
+      charCountEl.classList.toggle('exceeded', len > MAX_LEN);
+    }
+
+    function setSubmitting(flag) {
+      isSubmitting = flag;
+      elText.readOnly = flag;
+      elText.classList.toggle('is-locked', flag);
+      updateButtonText();
+      updateButtonState();
+    }
+
+    function renderCooldown() {
+      cooldownEl.textContent = `${cooldown}s`;
+    }
+
+    function startCooldown(seconds) {
+      if (cooldownTimer) clearInterval(cooldownTimer);
+
+      cooldown = seconds;
+      renderCooldown();
       updateButtonState();
 
       cooldownTimer = setInterval(() => {
-        cooldown -= 1; 
-        cooldownEl.textContent = cooldown + 's';
-        if (cooldown <= 0) { 
-          clearInterval(cooldownTimer); 
-          cooldownEl.textContent = '0s'; 
+        cooldown = Math.max(0, cooldown - 1);
+        renderCooldown();
+
+        if (cooldown === 0) {
+          clearInterval(cooldownTimer);
+          cooldownTimer = null;
           updateButtonState();
         }
       }, 1000);
     }
 
-    function showToast(msg) {
-      const t = document.createElement('div');
-      t.className = 'toast'; 
-      t.textContent = msg; 
-      document.body.appendChild(t);
-      setTimeout(() => t.remove(), 3500);
+    function resetForm() {
+      elText.value = '';
+      updateCharCount();
     }
 
-    if (copyCodeBtn) {
-      copyCodeBtn.addEventListener('click', () => {
-        const codeText = userCodeEl ? userCodeEl.textContent : '';
-        if (!codeText || codeText === '尚未生成') {
-          showToast('請先送出留言取得專屬代碼喔！');
-          return;
+    /* ========================================================
+       專屬代碼 highlight
+       ======================================================== */
+    function flashUserCode() {
+      userCodeEl.classList.remove('code-highlight');
+      void userCodeEl.offsetWidth;
+      userCodeEl.classList.add('code-highlight');
+    }
+
+    userCodeEl.addEventListener('animationend', () => {
+      userCodeEl.classList.remove('code-highlight');
+    });
+
+    /* ========================================================
+       Toast
+       ======================================================== */
+    function showToast(msg, type = 'ok') {
+      if (toastTimer) clearTimeout(toastTimer);
+      if (toastEl) toastEl.remove();
+
+      const el = document.createElement('div');
+      el.className = 'toast' + (type === 'ok' ? '' : ` toast--${type}`);
+      el.setAttribute('role', 'status');
+      el.setAttribute('aria-live', 'assertive');
+      el.textContent = msg;
+
+      document.body.appendChild(el);
+      toastEl = el;
+
+      requestAnimationFrame(() => el.classList.add('show'));
+
+      toastTimer = setTimeout(() => {
+        el.classList.remove('show');
+        setTimeout(() => {
+          if (toastEl === el) toastEl = null;
+          el.remove();
+        }, 220);
+      }, TOAST_LIFETIME_MS);
+    }
+
+    /* ========================================================
+       Turnstile & Loading
+       ======================================================== */
+    function resetTurnstile() {
+      if (typeof turnstile !== 'undefined' && turnstile.reset) {
+        turnstile.reset();
+      }
+    }
+
+    function showLoading() {
+      document.body.classList.add('is-loading');
+      loadingEl.classList.add('active');
+      loadingEl.setAttribute('aria-hidden', 'false');
+    }
+
+    function hideLoading() {
+      loadingEl.classList.remove('active');
+      loadingEl.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('is-loading');
+    }
+
+    /* ========================================================
+       Turnstile 載入偵測（修正版）
+       --------------------------------------------------------
+       改用「容器有子元素」作為判斷，因為：
+       1. Turnstile 的 iframe src 可能不是 challenges.cloudflare.com
+       2. iframe 可能在 shadow DOM 內，document.querySelector 找不到
+       3. src 可能是 about:blank，內容由 JS 注入
+       
+       配合 MutationObserver 即時偵測，10 秒超時。
+       ======================================================== */
+    function isTurnstileRendered() {
+      if (!turnstileBox) return false;
+      // 最可靠的判斷：容器有子元素（Turnstile 插入 iframe 或 div）
+      return turnstileBox.children.length > 0;
+    }
+
+    function showTurnstileError() {
+      if (turnstileErrorShown) return;
+      if (turnstileSlot.querySelector('.turnstile-error')) return;
+      turnstileErrorShown = true;
+
+      const p = document.createElement('p');
+      p.className = 'turnstile-error';
+      p.setAttribute('role', 'alert');
+      p.textContent = t('turnstileLoadError');
+      turnstileSlot.appendChild(p);
+    }
+
+    function setupTurnstileWatch() {
+      if (!turnstileBox) {
+        showTurnstileError();
+        return;
+      }
+
+      // 已經渲染好了，不用監聽
+      if (isTurnstileRendered()) return;
+
+      let errorTimer = null;
+
+      const observer = new MutationObserver(() => {
+        if (isTurnstileRendered()) {
+          observer.disconnect();
+          if (errorTimer) {
+            clearTimeout(errorTimer);
+            errorTimer = null;
+          }
         }
-        navigator.clipboard.writeText(codeText).then(() => {
-          showToast('留言專屬代碼已複製！這組代碼可以用於辨識你自己的留言～');
-        }).catch(() => {
-          showToast('複製失敗，請手動複製：' + codeText);
-        });
       });
+      observer.observe(turnstileBox, { childList: true, subtree: true });
+
+      // 超時後仍未渲染 → 顯示錯誤
+      errorTimer = setTimeout(() => {
+        observer.disconnect();
+        errorTimer = null;
+        if (!isTurnstileRendered()) {
+          showTurnstileError();
+        }
+      }, TURNSTILE_CHECK_MS);
     }
 
-    btn.addEventListener('click', async () => {
-      const txt = elText.value.trim();
-      if (!txt) { showToast('欸？你要送什麼啦！'); return; }
-      if (elText.value.length > 100) { showToast('錯誤：太長惹，請少於100字'); return; }
-      if (cooldown > 0) { showToast('錯誤：冷卻中，等等啦～'); return; }
+    /* ========================================================
+       語言提示條
+       ======================================================== */
+    function hideLangHint() {
+      langHint.hidden = true;
+    }
 
-      // 直接取得 Turnstile 驗證 Token
-      const turnstileResponse = typeof turnstile !== 'undefined' ? turnstile.getResponse() : '';
-      if (!turnstileResponse) { showToast('錯誤：請先通過"我不是機器人"驗證！'); return; }
+    function maybeShowLangHint() {
+      if (hintDismissed) return;
 
-      const urlParams = new URLSearchParams(window.location.search);
-      const tag = urlParams.get('tag') || '';
+      const browser = detectBrowserLang();
+      if (!browser) return;
 
-      isSubmitting = true;
+      if (browser === currentLang) return;
+
+      let switchTarget = '';
+      let switchLabel  = '';
+
+      if (I18N[browser]) {
+        langHintText.textContent = LANG_HINT_TEXT[browser] || LANG_HINT_TEXT.en;
+        switchTarget = browser;
+        switchLabel  = LANG_NAMES[browser];
+      } else {
+        const displayName = getLangDisplayName(browser);
+        langHintText.textContent =
+          `This page is available in 繁體中文, 简体中文, English, and 日本語. ` +
+          `You're browsing in ${displayName || 'an unsupported language'}.`;
+        switchTarget = 'en';
+        switchLabel  = 'English';
+      }
+
+      langHintSwitch.textContent = switchLabel;
+      langHintSwitch.dataset.targetLang = switchTarget;
+      langHint.hidden = false;
+    }
+
+    langHintSwitch.addEventListener('click', () => {
+      const target = langHintSwitch.dataset.targetLang;
+      if (target && I18N[target]) {
+        applyLang(target);
+        hideLangHint();
+      }
+    });
+
+    langHintDismiss.addEventListener('click', () => {
+      hintDismissed = true;
+      hideLangHint();
+    });
+
+    /* ========================================================
+       語言切換器
+       ======================================================== */
+    function closeLangMenu() {
+      langSwitcher.classList.remove('open');
+      langTrigger.setAttribute('aria-expanded', 'false');
+    }
+
+    langTrigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const open = langSwitcher.classList.toggle('open');
+      langTrigger.setAttribute('aria-expanded', String(open));
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!langSwitcher.contains(e.target)) closeLangMenu();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLangMenu();
+    });
+
+    langMenu.addEventListener('click', (e) => {
+      const li = e.target.closest('li[data-lang]');
+      if (!li) return;
+      if (li.dataset.lang !== currentLang) {
+        applyLang(li.dataset.lang);
+        hideLangHint();
+      }
+      closeLangMenu();
+    });
+
+    /* ========================================================
+       其他事件
+       ======================================================== */
+    elText.addEventListener('input', () => {
+      updateCharCount();
       updateButtonState();
-      showToast('留言送出中請保持在這個頁面等我一下下喔！！');
+    });
+
+    elText.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        if (!btn.disabled && !isSubmitting) submit();
+      }
+    });
+
+    clearBtn.addEventListener('click', () => {
+      if (isSubmitting) return;
+      resetForm();
+      updateButtonState();
+      showToast(t('toastCleared'), 'info');
+    });
+
+    copyCodeBtn.addEventListener('click', async () => {
+      const code = (userCodeEl.textContent || '').trim();
+      const emptyTexts = Object.values(I18N).map(d => d.codeEmpty);
+
+      if (!code || emptyTexts.includes(code)) {
+        showToast(t('toastNoCode'), 'info');
+        return;
+      }
+
+      try {
+        if (!navigator.clipboard?.writeText) throw new Error('unsupported');
+        await navigator.clipboard.writeText(code);
+
+        if (copyResetTimer) clearTimeout(copyResetTimer);
+        copyCodeBtn.textContent = t('copied');
+        copyCodeBtn.classList.add('is-copied');
+        copyResetTimer = setTimeout(() => {
+          copyCodeBtn.textContent = t('copy');
+          copyCodeBtn.classList.remove('is-copied');
+          copyResetTimer = null;
+        }, COPY_FEEDBACK_MS);
+
+        showToast(t('toastCopied'));
+      } catch {
+        showToast(t('toastCopyFail', { code }), 'error');
+      }
+    });
+
+    btn.addEventListener('click', submit);
+
+    /* ========================================================
+       送出流程
+       ======================================================== */
+    async function submit() {
+      const raw = elText.value;
+      const txt = raw.trim();
+
+      if (!txt) {
+        showToast(t('toastEmpty'), 'info');
+        return;
+      }
+      if (raw.length > MAX_LEN) {
+        showToast(t('toastTooLong', { n: MAX_LEN }), 'error');
+        return;
+      }
+      if (cooldown > 0) {
+        showToast(t('toastCooldown', { n: cooldown }), 'info');
+        return;
+      }
+
+      const turnstileResponse =
+        typeof turnstile !== 'undefined' ? turnstile.getResponse() : '';
+
+      if (!turnstileResponse) {
+        showToast(t('toastTurnstile'), 'error');
+        return;
+      }
+
+      const tag = new URLSearchParams(window.location.search).get('tag') || '';
+
+      setSubmitting(true);
+      showLoading();
+      hideLangHint();
+
+      const controller = new AbortController();
+      const timeoutId  = setTimeout(() => controller.abort(), SUBMIT_TIMEOUT_MS);
 
       try {
         const res = await fetch(WORKER_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: txt, tag, turnstile: turnstileResponse })
+          body: JSON.stringify({ text: txt, tag, turnstile: turnstileResponse }),
+          signal: controller.signal,
         });
-        const data = await res.json();
-        if (data.status === 'ok') {
-          // 1. 取得 Worker/Apps Script 配發的流水號代碼
-          const code = data.userCode || '未知代碼';
 
-          // 2. 更新畫面上顯示的代碼
-          if (userCodeEl) {
-            userCodeEl.textContent = code;
-          }
+        const data = await res.json().catch(() => ({}));
 
-          // 3. 跳出 Toast 提示，並提醒使用者可以複製代碼
-          showToast(`送出成功！你留言的專屬代碼是：${code}`);
-
-          // 4. 重置輸入框與狀態
-          elText.value = '';
-          charCountEl.textContent = '0 / 100';
-          charCountEl.classList.remove('exceeded');
-          if (typeof turnstile !== 'undefined') turnstile.reset();
-          isSubmitting = false;
-          startCooldown(8);
-        } else {
-          showToast('失敗：' + data.message);
-          if (typeof turnstile !== 'undefined') turnstile.reset();
-          isSubmitting = false;
-          updateButtonState();
+        if (!res.ok || data.status !== 'ok') {
+          throw new Error(data.message || `HTTP ${res.status}`);
         }
-      } catch (e) {
-        showToast('錯誤：送出失敗，未知原因');
-        if (typeof turnstile !== 'undefined') turnstile.reset();
-        isSubmitting = false;
-        updateButtonState();
+
+        const code = data.userCode || t('unknownCode');
+        userCodeEl.textContent = code;
+        userCodeEl.dataset.state = 'generated';
+        flashUserCode();
+
+        resetForm();
+        startCooldown(COOLDOWN_SECONDS);
+        showToast(t('toastSuccess', { code }));
+      } catch (err) {
+        const message =
+          err.name === 'AbortError'
+            ? t('toastTimeout')
+            : (err.message || 'Unknown error');
+        showToast(t('toastError', { msg: message }), 'error');
+      } finally {
+        clearTimeout(timeoutId);
+        resetTurnstile();
+        hideLoading();
+        setSubmitting(false);
       }
-    });
+    }
 
-    clear.addEventListener('click', () => { 
-      elText.value = ''; 
-      charCountEl.textContent = '0 / 100';
-      charCountEl.classList.remove('exceeded');
-      updateButtonState();
-      showToast('已清空'); 
-    });
-
-    // 初始化按鈕狀態
+    /* ========================================================
+       初始化
+       ======================================================== */
+    applyLang('zh-Hant');
+    maybeShowLangHint();
+    updateCharCount();
     updateButtonState();
+    renderCooldown();
+    setupTurnstileWatch();
+  })();
   </script>
 </body>
 </html>
